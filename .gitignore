@@ -1,0 +1,11 @@
+*.pyc
+*.pyd
+__pycache__
+bin
+library.zip
+.hg
+#### Windows
+*.obj
+*.exe
+*.pdb
+*.dll

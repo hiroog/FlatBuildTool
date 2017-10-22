@@ -1,0 +1,12 @@
+syntax: glob
+*.pyc
+*.pyd
+__pycache__
+bin
+library.zip
+.git
+#### Windows
+*.obj
+*.exe
+*.pdb
+*.dll
