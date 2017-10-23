@@ -2,6 +2,8 @@
 
 
 def dumpEnvironment( env, config, arch ):
+    if not env.isValid():
+        return
 
     def dumpFlags( env, attr_name ):
         data= getattr( env, attr_name, None )
@@ -14,6 +16,7 @@ def dumpEnvironment( env, config, arch ):
     def dumpCommandLine( msg, command ):
         print( msg + ' ' + ' '.join( command ) )
 
+    print( '========================================' )
 
     env.summary()
 
@@ -22,6 +25,7 @@ def dumpEnvironment( env, config, arch ):
     env.refresh()
 
     print()
+
 
     print( 'CMD_CC   = ' + env.CMD_CC )
     print( 'CMD_LINK = ' + env.CMD_LINK )
@@ -58,16 +62,23 @@ def dumpEnvironment( env, config, arch ):
     print()
     dumpCommandLine( 'ar', env.getBuildCommand_Lib( env.getLibPath( 'test' ), [ obj_name ] ) )
 
+    print( '========================================' )
 
 
+
+def dumpEnvironmentAll( env ):
+    if env.isValid():
+        for config in ['Debug', 'Release', 'Retail']:
+            for arch in env.getSupportArchList():
+                dumpEnvironment( env, config, arch )
 
 
 env= tool.createTargetEnvironment( genv.getHostPlatform() )
-#env= tool.createTargetEnvironment( 'Android' )
-#dumpEnvironment( env, 'Debug', 'arm7' )
 dumpEnvironment( env, 'Debug', 'x64' )
 
 
+env= tool.createTargetEnvironment( 'Android' )
+dumpEnvironment( env, 'Debug', 'arm7' )
 
 
 tool.addNamedTask( env, 'build', [] )

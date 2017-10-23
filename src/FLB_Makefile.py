@@ -9,16 +9,12 @@ def compile( task ):
     BuildUtility.CopyFilesDir( copy_list, '../bin' )
 
 
-
-env= tool.createTargetEnvironment()
-tool.addScriptTask( env, 'compile', compile )
-
-
+tool.addScriptTask( genv, 'compile', compile )
 
 
 def message( task ):
     print( 'usage: flmake compile' )
 
 
-tool.addScriptTask( env, 'build', message )
+tool.addScriptTask( genv, 'build', message )
 
