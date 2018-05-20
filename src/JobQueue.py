@@ -91,7 +91,7 @@ class ThreadPool:
         if max_thread == 0:
             self.max_thread= multiprocessing.cpu_count()
         self.thread_list= []
-        Log.d( 'Thread = %d' % self.max_thread )
+        Log.p( 'Thread = %d' % self.max_thread )
 
     def addThread( self ):
         if len( self.thread_list ) < self.max_thread:

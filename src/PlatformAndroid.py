@@ -8,6 +8,7 @@ import  BuildUtility
 from BuildUtility import Log
 
 
+#   P   27  Android 9.0?
 #   O   26  Android 8.0
 #   N   25  Android 7.1
 #   N   24  Android 7.0     Daydream
@@ -102,9 +103,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addCCFlags( '-fno-diagnostics-color'.split() )
 
         self.addIncludePath( [
-                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
-                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/system/include' ),
-                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
+                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
+                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/system/include' ),
+                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
+                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gnu-libstdc++/4.9/include' ),
+                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gabi++/include' ),
                 ] )
 
         self.addLibrary( [ 'stdc++', 'pthread', 'm'] )
@@ -295,16 +298,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getBuildCommand_CC( self, target, src_list ):
         command= []
-        if self.getOption( 'BRCC' ):
-            config= self.getOption( 'BRCC_Config' )
-            if config.python:
-                command.append( config.python )
-                command.append( os.path.join( config.BRCC_ROOT, 'src/brcc.py' ) )
-            else:
-                command.append( os.path.join( config.BRCC_ROOT, 'bin/brcc' ) )
-            command.append( '---exe:' + self.CMD_CC )
-        else:
-            command.append( self.CMD_CC )
+        command.append( self.CMD_CC )
         command.append( '-c' )
         command.extend( self.CC_FLAGS_R )
         for src in src_list:
@@ -325,6 +319,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getBuildCommand_Lib( self, target, src_list ):
         command= []
+        command.append( BuildUtility.RemoveFile )
+        command.append( target )
+        command.append( ';;' )
         command.append( self.CMD_LIB )
         command.append( 'crs' )
         command.append( target )
@@ -336,10 +333,16 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     #--------------------------------------------------------------------------
 
     def getSupportArchList( self ):
-        if self.API_LEVEL >= 21:
-            return  [ 'arm7', 'arm7hf', 'arm64', 'arm5', 'x86', 'x64', 'mips', 'mips64' ]
+        if True:
+            if self.API_LEVEL >= 21:
+                return  [ 'arm7', 'arm64', 'x86', 'x64' ]
+            else:
+                return  [ 'arm7', 'x86' ]
         else:
-            return  [ 'arm7', 'arm5', 'x86', 'mips' ]
+            if self.API_LEVEL >= 21:
+                return  [ 'arm7', 'arm7hf', 'arm64', 'arm5', 'x86', 'x64', 'mips', 'mips64' ]
+            else:
+                return  [ 'arm7', 'arm5', 'x86', 'mips' ]
 
 
 

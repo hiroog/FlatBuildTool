@@ -28,6 +28,7 @@ class TargetEnvironmentCommon:
         self.OUTPUT_OBJ_DIR= 'obj'
         self.OUTPUT_EXE_DIR= 'obj'
         self.OUTPUT_LIB_DIR= 'lib'
+        self.OUTPUT_DLL_DIR= 'lib'
 
         self.INCLUDE_PATH= []
         self.LIB_PATH= []
@@ -55,6 +56,7 @@ class TargetEnvironmentCommon:
                     'OUTPUT_OBJ_DIR',
                     'OUTPUT_EXE_DIR',
                     'OUTPUT_LIB_DIR',
+                    'OUTPUT_DLL_DIR',
 
                     'INCLUDE_PATH',
                     'LIB_PATH',
@@ -167,6 +169,8 @@ class TargetEnvironmentCommon:
         return  self.CONFIG == 'Retail'
 
 
+    def setApiLevel( self, api ):
+        pass
 
     #--------------------------------------------------------------------------
 
@@ -178,6 +182,9 @@ class TargetEnvironmentCommon:
 
     def setLibDir( self, path ):
         self.OUTPUT_LIB_DIR= path
+
+    def setDllDir( self, path ):
+        self.OUTPUT_DLL_DIR= path
 
 
     #--------------------------------------------------------------------------
@@ -280,6 +287,11 @@ class TargetEnvironmentCommon:
             src_file= self.getLibName( src_file )
         return  self.getOutputPath( self.OUTPUT_LIB_DIR, src_file )
 
+    def getDllPath( self, src_file= None ):
+        if src_file:
+            src_file= self.getDllName( src_file )
+        return  self.getOutputPath( self.OUTPUT_DLL_DIR, src_file )
+
 
     def getObjName( self, obj_name ):
         return  obj_name + '.o'
@@ -289,6 +301,9 @@ class TargetEnvironmentCommon:
 
     def getLibName( self, lib_name ):
         return  'lib' + lib_name + '.a'
+
+    def getDllName( self, lib_name ):
+        return  'lib' + lib_name + '.so'
 
 
 
@@ -313,6 +328,9 @@ class TargetEnvironmentCommon:
             '.cpp' : Depend.SourceFileC,
             '.cc'  : Depend.SourceFileC,
             '.c'   : Depend.SourceFileC,
+            '.mm'  : Depend.SourceFileC,
+            '.m'   : Depend.SourceFileC,
+            '.metal': Depend.SourceFileC,
             }
         if ext in parser:
             return  parser[ ext ]( self, file_name )
@@ -370,6 +388,7 @@ class TargetEnvironmentCommon:
         self.setupCCFlags()
         self.setupLinkFlags()
         self.setupLibFlags()
+
 
 
 

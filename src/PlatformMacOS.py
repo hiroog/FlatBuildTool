@@ -3,6 +3,7 @@
 
 import  os
 import  PlatformCommon
+import  BuildUtility
 from BuildUtility import Log
 
 
@@ -32,8 +33,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.setTargetPlatform( 'macOS' )
 
         self.setConfig( 'Debug' )
-        self.addCCFlags( '-Wall -std=gnu++14 -fno-rtti -fno-exceptions -ffast-math'.split() )
+        #self.addCCFlags( '-Wall -std=gnu++14 -fno-rtti -fno-exceptions -ffast-math'.split() )
+        self.addCCFlags( '-Wall -fno-rtti -fno-exceptions -ffast-math'.split() )
         self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2'.split() )
+
+        self.OBJC_FLAGS= '-fobjc-arc -DOBJC_OLD_DISPATCH_PROTOTYPES=0'.split()
 
         self.addLibrary( [ 'stdc++', 'pthread', 'm'] )
 
@@ -55,8 +59,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
-            'x86':   '-m32 -msse3 -mssse3 -msse4.1 -maes',
-            'x64':   '-m64 -msse3 -mssse3 -msse4.1 -maes',
+            'x86':   '-m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mavx2 -mf16c -mfma',
+            'x64':   '-m64              -msse3 -mssse3 -msse4.1 -maes -mavx -mavx2 -mf16c -mfma',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -70,19 +74,19 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getBuildCommand_CC( self, target, src_list ):
         command= []
-        if self.getOption( 'BRCC' ):
-            config= self.getOption( 'BRCC_Config' )
-            if config.python:
-                command.append( config.python )
-                command.append( os.path.join( config.BRCC_ROOT, 'src/brcc.py' ) )
-            else:
-                command.append( os.path.join( config.BRCC_ROOT, 'bin/brcc' ) )
-            command.append( '---exe:' + self.CMD_CC )
-        else:
-            command.append( self.CMD_CC )
+        command.append( self.CMD_CC )
         command.append( '-c' )
         command.extend( self.CC_FLAGS_R )
         for src in src_list:
+            base,ext= os.path.splitext( src.lower() )
+            if ext == '.m':
+                command.extend( '-x objective-c -std=gnu11'.split() )
+                command.extend( self.OBJC_FLAGS )
+            elif ext == '.mm':
+                command.extend( '-x objective-c++ -std=gnu++14 -stdlib=libc++'.split() )
+                command.extend( self.OBJC_FLAGS )
+            else:
+                command.extend( '-x c++ -std=gnu++14 -stdlib=libc++'.split() )
             command.append( src )
         command.append( '-o' )
         command.append( target )
@@ -100,6 +104,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getBuildCommand_Lib( self, target, src_list ):
         command= []
+        command.append( BuildUtility.RemoveFile )
+        command.append( target )
+        command.append( ';;' )
         command.append( self.CMD_LIB )
         command.append( 'crs' )
         command.append( target )

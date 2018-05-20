@@ -15,7 +15,6 @@ opt= {
                 "Depend",
                 "JobQueue",
                 "BuildUtility",
-                "BRCCNetLib",
                 "PlatformCommon",
                 "PlatformWindows",
                 "PlatformLinux",

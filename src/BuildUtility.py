@@ -64,8 +64,14 @@ def IsRoot( path ):
 
 def RemoveTree( path ):
     if os.path.exists( path ):
+        Log.d( 'Remove Tree = ' + path )
         shutil.rmtree( path )
 
+
+def RemoveFile( path ):
+    if os.path.exists( path ):
+        Log.d( 'Remove File = ' + path )
+        os.remove( path )
 
 
 def GetEnv( name, default_value= None ):
@@ -93,6 +99,7 @@ def GetTimeStamp( file_name ):
     if os.path.exists( file_name ):
         return  os.path.getmtime( file_name )
     return  0
+
 
 
 def CopyFilesDir( src_list, dest_dir ):

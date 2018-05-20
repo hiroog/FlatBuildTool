@@ -283,16 +283,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getBuildCommand_CC( self, target, src_list ):
         command= []
-        if self.getOption( 'BRCC' ):
-            config= self.getOption( 'BRCC_Config' )
-            if config.python:
-                command.append( config.python )
-                command.append( os.path.join( config.BRCC_ROOT, 'src/brcc.py' ) )
-            else:
-                command.append( os.path.join( config.BRCC_ROOT, 'bin/brcc' ) )
-            command.append( '---exe:' + self.CMD_CC )
-        else:
-            command.append( self.CMD_CC )
+        command.append( self.CMD_CC )
         command.append( '-c' )
         command.extend( self.CC_FLAGS_R )
         for src in src_list:
@@ -309,6 +300,21 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for src in src_list:
             command.append( src )
         command.append( '-link' )
+        command.extend( self.LINK_FLAGS_R )
+        return  command
+
+    def getBuildCommand_Dll( self, target, src_list ):
+        command= []
+        command.append( self.CMD_CC )
+        command.append( '-Fe:' + target )
+        for src in src_list:
+            command.append( src )
+        command.append( '-LD' )
+        command.append( '-link' )
+        base,ext= os.path.splitext(os.path.basename(target))
+        lib_path= self.getLibPath( base )
+        command.append( '-IMPLIB:' + lib_path )
+        print( lib_path )
         command.extend( self.LINK_FLAGS_R )
         return  command
 
@@ -331,6 +337,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getObjName( self, obj_name ):
         return  obj_name + '.obj'
+
+    def getDllName( self, obj_name ):
+        return  obj_name + '.dll'
 
     #--------------------------------------------------------------------------
 

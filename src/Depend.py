@@ -416,6 +416,19 @@ class ObjTask( TaskBase ):
 #------------------------------------------------------------------------------
 
 
+def commandSplitter( command ):
+    if ';;' in command:
+        cmd_list= []
+        cur_args= []
+        for param in command:
+            if param == ';;':
+                cmd_list.append( cur_args )
+                cur_args= []
+            else:
+                cur_args.append( param )
+        cmd_list.append( cur_args )
+        return  cmd_list
+    return  [command]
 
 
 class ExeTask( TaskBase ):
@@ -432,7 +445,17 @@ class ExeTask( TaskBase ):
         Log.p( '  <== ' + message )
         self.env.makeOutputDirectory( self.target )
         #self.tool.thread_pool.addJob( CompileJob( self.tool, self.env, self.command ) )
-        result_code= BuildUtility.ExecCommand( self.command )
+
+        command_list= commandSplitter( self.command )
+        #print( command_list )
+        for command in command_list:
+            if not isinstance( command[0], str ):
+                command[0]( *command[1:] )
+            else:
+                result_code= BuildUtility.ExecCommand( command )
+                if result_code != 0:
+                    return  self.completeTask( result_code )
+
         self.tool.timestamp_cache.removeEntry( self.target )
         if result_code == 0:
             Log.p( '  Ok ' + self.target )
@@ -561,9 +584,13 @@ class ScriptTask( TaskBase ):
         self.src_list= src_list
         self.task_list= task_list
         self.script= script
+        self.args= None
 
     def preBuild( self ):
-        self.script( self )
+        if self.args is None:
+            self.script( self )
+        else:
+            self.script( *self.args )
         Log.d( 'Script task "%s" completed' % self.target )
         return  self.completeTask( 0 )
 

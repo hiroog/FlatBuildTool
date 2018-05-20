@@ -1,4 +1,4 @@
-# FlatBuildTool 2017/07/23 Hiroyuki Ogasawara
+# FlatBuildTool 2017/11/01 Hiroyuki Ogasawara
 # vim:ts=4 sw=4 et:
 
 import  os
@@ -12,8 +12,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def __init__( self, tool, parent= None ):
         super().__init__( tool, parent )
 
-        self.CMD_CC= 'clang'
-        self.CMD_LINK= 'clang'
+        if not self.getHostPlatform() == 'macOS':
+            return
+
+        self.CMD_CC= '/usr/bin/clang++'
+        self.CMD_LINK= '/usr/bin/clang++'
         self.CMD_LIB= 'ar'
 
         self.setDefault()
@@ -23,16 +26,25 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         super().summary()
 
     def isValid( self ):
-        return  True
+        return  self.getHostPlatform() == 'macOS'
 
 
     def setDefault( self ):
-        self.setTargetPlatform( 'Linux' )
+        self.setTargetPlatform( 'iOS' )
+        self.setTargetArch( 'arm64' )
+        self.SDK_PATH= '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.1.sdk'
 
         self.setConfig( 'Debug' )
-        self.addCCFlags( '-Wall -std=gnu++1z -fno-rtti -fno-exceptions -ffast-math'.split() )
-        #self.addCCFlags( '-Wall -std=c++14 -fno-rtti -fno-exceptions -ffast-math'.split() )
-        self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2 -DFLB_FORCE_LINUX=1'.split() )
+        self.addCCFlags( '-Wall'.split() )
+        self.addCCFlags( '-fno-rtti -fno-exceptions -ffast-math'.split() )
+        self.addCCFlags( '-fmessage-length=0 -Wno-trigraphs -Wreturn-type'.split() )
+        self.addCCFlags( '-fmacro-backtrace-limit=0 -fdiagnostics-show-note-include-stack'.split() )
+        #self.addCCFlags( '-fmodules -gmodules'.split() )
+        self.addCCFlags( '-fpascal-strings -fno-common -fstrict-aliasing -g -fembed-bitcode-marker'.split() )
+        self.addCCFlags( '-miphoneos-version-min=11.0'.split() )
+        self.addCCFlags( ['-isysroot', self.SDK_PATH] )
+
+        self.OBJC_FLAGS= '-fobjc-arc -DOBJC_OLD_DISPATCH_PROTOTYPES=0'.split()
 
         self.addLibrary( [ 'stdc++', 'pthread', 'm'] )
 
@@ -46,7 +58,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.CC_FLAGS_R= []
         table_config= {
-                'Debug'   : "-O0 -D_DEBUG",
+                'Debug'   : "-O0 -D_DEBUG -DDEBUG=1",
                 'Release' : "-Os -O3 -DNDEBUG",
                 'Retail'  : "-Os -O3 -DNDEBUG -DFLB_RETAIL=1",
             }
@@ -54,12 +66,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
-            'x86':   '-m32 -msse3 -mssse3 -msse4.1 -maes',
-            'x64':   '-m64 -msse3 -mssse3 -msse4.1 -maes',
-            'arm7':  '-march=armv7-a -marm -mfpu=vfpv3 -mfpu=neon -mfloat-abi=hard -fPIC',
-            'arm7s': '-march=armv7-a -marm -mfpu=neon-vfpv4 -mfloat-abi=hard',
-            'arm6':  '-marm -mfpu=vfp -mfloat-abi=hard',
-            'arm64': '-march=armv8-a+crypto',
+            'arm7':    '-arch armv7',
+            'arm7s':   '-arch armv7s',
+            'arm64':   '-arch arm64',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -77,6 +86,15 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         command.append( '-c' )
         command.extend( self.CC_FLAGS_R )
         for src in src_list:
+            base,ext= os.path.splitext( src.lower() )
+            if ext == '.m':
+                command.extend( '-x objective-c -std=gnu11'.split() )
+                command.extend( self.OBJC_FLAGS );
+            elif ext == '.mm':
+                command.extend( '-x objective-c++ -std=gnu++14 -stdlib=libc++'.split() )
+                command.extend( self.OBJC_FLAGS );
+            else:
+                command.extend( '-x c++ -std=gnu++14 -stdlib=libc++'.split() )
             command.append( src )
         command.append( '-o' )
         command.append( target )
@@ -108,6 +126,13 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
 
 
+
+
+    #--------------------------------------------------------------------------
+
+    def getSupportArchList( self ):
+        return  [ 'arm64' ]
+        #return  [ 'arm64', 'arm7', 'arm7s' ]
 
 
 

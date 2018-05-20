@@ -4,8 +4,15 @@ __pycache__
 bin
 library.zip
 .hg
+*.swp
+*.swo
 #### Windows
 *.obj
 *.exe
 *.pdb
 *.dll
+*.lib
+*.exp
+####
+*.o
+*.a

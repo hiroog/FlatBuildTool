@@ -8,7 +8,6 @@ import  Depend
 import  JobQueue
 import  BuildUtility
 
-import  BRCCNetLib
 import  PlatformCommon
 
 from BuildUtility import Log
@@ -37,11 +36,6 @@ class BuildTool:
         script_bin_path= os.path.dirname(sys.argv[0])
 
         sys.path.append( script_bin_path )
-        #sys.path.append( os.path.join( script_bin_path, 'module' ) )
-        #print( sys.path )
-        #if self.global_env.getOption( 'BRCC' ):
-        #    StartupScript= os.path.join( script_bin_path, 'FLB_BRCC.py' )
-        #else:
         StartupScript= os.path.join( script_bin_path, 'FLB_Default.py' )
 
         if os.path.exists( StartupScript ):
@@ -198,6 +192,44 @@ class BuildTool:
 
 
 
+    def addDllTask( self, env, target, src_list ):
+        target= env.getDllPath( target )
+        abs_target= self.getGenericPath( target )
+        task= self.findTask( abs_target )
+        if task != None:
+            return  task
+
+        task_list= []
+        obj_list= []
+        for src in src_list:
+            obj_file= env.getObjPath( src )
+            obj_list.append( obj_file )
+            task= self.findTask( obj_file )
+            if task == None:
+                task= self.addObjTask( env, obj_file, [src] )
+            task_list.append( task )
+
+        command= env.getBuildCommand_Dll( target, obj_list )
+
+        task= Depend.ExeTask( env, abs_target, obj_list, command, task_list )
+        self.addTask( abs_target, task )
+        return  task
+
+#    def addDllTask( self, env, target, src_list ):
+#        dll_target= env.getDllPath( target )
+#        abs_target= self.getGenericPath( dll_target )
+#        task= self.findTask( abs_target )
+#        if task != None:
+#            return  task
+#        lib_task= self.addLibTask( env, target, src_list )
+#
+#        command= env.getBuildCommand_Dll( dll_target, [lib_task.target] )
+#        task= Depend.ExeTask( env, abs_target, [lib_task.target], command, [lib_task] )
+#        self.addTask( abs_target, task )
+#        return  task
+
+
+
     def addSimpleExeTask( self, env, target, src_list ):
         target= env.getExePath( target )
         abs_target= self.getGenericPath( target )
@@ -275,7 +307,7 @@ class BuildTool:
 #------------------------------------------------------------------------------
 
 def usage():
-    Log.p( 'FlatBuildTool v1.10 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.11 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFiles.py>' )
     Log.p( '  -debug' )
@@ -331,13 +363,6 @@ def main():
                 dump_flag= True
             elif arg == '-list':
                 list_flag= True
-            elif arg == '-brcc':
-                config= BRCCNetLib.ClientConfig()
-                if config.isAvailable():
-                    opt_dict['BRCC']= True
-                    job_count= config.getRemoteThreadCount()
-                    #BRCCNetLib.ClientConfig.Instance= config
-                    opt_dict['BRCC_Config']= config
             else:
                 usage()
         else:
