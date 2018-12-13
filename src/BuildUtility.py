@@ -84,13 +84,14 @@ def GetFullPath( path ):
     return  os.path.abspath( path )
 
 
-def FindPath( path, env ):
+def FindPath( path, env= None  ):
     result= os.path.abspath( path )
     if os.path.exists( result ):
         return  result
-    result= GetEnv( env )
-    if result is not None:
-        return  result
+    if env is not None:
+        result= GetEnv( env )
+        if result is not None:
+            return  result
     return  None
 
 

@@ -1,3 +1,4 @@
+# build all architectures and configuration
 
 src_list= [
     'function.cpp',

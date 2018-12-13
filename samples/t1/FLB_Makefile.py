@@ -1,3 +1,6 @@
+# change configuration
+#  $ flmake clean
+#  $ flmake
 
 src_list= [
     'main.cpp',

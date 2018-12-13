@@ -93,11 +93,13 @@ class TaskCache:
         self.tool= tool
         self.cache= {}
         self.prefix= []
+        self.prefix_name= None
 
 
     def findTask( self, task_name ):
         #l_name= self.tool.getGenericPath( task_name )
-        l_name= task_name
+        #l_name= task_name
+        l_name= self.getPrefix( task_name )
         if l_name in self.cache:
             return  self.cache[l_name]
         return  None
@@ -120,22 +122,39 @@ class TaskCache:
 
     def addPrefix( self, prefix ):
         self.prefix.append( prefix )
+        self.buildPrefixCache()
 
     def popPrefix( self ):
         self.prefix.pop()
+        self.buildPrefixCache()
+
+    def buildPrefixCache( self ):
+        base= None
+        for pre in self.prefix:
+            if base is not None:
+                base+= pre + '/'
+            else:
+                base= pre + '/'
+        if base is not None:
+            self.prefix_name= base
+        else:
+            self.prefix_name= None
 
     def getPrefix( self, name ):
         if BuildUtility.IsRoot( name ):
             return  name
-        base= None
-        for pre in self.prefix:
-            if base is not None:
-                base+= '/' + pre
-            else:
-                base= pre
-        if base is not None:
-            return   base + '/' + name
-        return  name
+        if self.prefix_name is None:
+            return  name
+        return  self.prefix_name + name
+        #base= None
+        #for pre in self.prefix:
+        #    if base is not None:
+        #        base+= '/' + pre
+        #    else:
+        #        base= pre
+        #if base is not None:
+        #    return   base + '/' + name
+        #return  name
 
 
     def dump( self ):

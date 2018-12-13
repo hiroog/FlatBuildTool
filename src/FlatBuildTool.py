@@ -84,7 +84,7 @@ class BuildTool:
             return  os.environ[name]
         return  default_value
 
-    def findPath( self, path, env ):
+    def findPath( self, path, env= None ):
         return  BuildUtility.FindPath( path, env )
 
     def getGenericPath( self, file ):
@@ -94,12 +94,20 @@ class BuildTool:
     def pushDir( self, dir, prefix= None ):
         self.task_cache.addPrefix( prefix if prefix else dir )
         self.dir_stack.append( os.getcwd() )
-        os.chdir( dir )
+        result=os.chdir( dir )
+        #print( 'CHDIR RESULT=', dir, result, self.task_cache.getPrefix( 'DUMMY' ) )
+        #print( os.getcwd() )
 
     def popDir( self ):
         os.chdir( self.dir_stack.pop() )
         self.task_cache.popPrefix()
 
+    # run sub directorys script
+    def execSubmoduleScripts( self, file_name, module_list ):
+        for module in module_list:
+            self.pushDir( module )
+            self.execScript( file_name )
+            self.popDir()
 
     #--------------------------------------------------------------------------
 
@@ -258,6 +266,24 @@ class BuildTool:
             return  task
         return  self.addTask( target, Depend.ScriptTask( env, target, script, src_list, task_list ) )
 
+    def addSubmoduleTasks( self, env, name, module_list, target_name= None ):
+        task_list= []
+        if target_name is None:
+            target_name= name
+        for dir in module_list:
+            task= self.findTask( dir + '/' + target_name )
+            if task is not None:
+                task_list.append( task )
+        if task_list != []:
+            return  self.addNamedTask( env, name, task_list )
+        return  None
+
+
+
+    #--------------------------------------------------------------------------
+
+
+
 
 
     #--------------------------------------------------------------------------
@@ -307,16 +333,15 @@ class BuildTool:
 #------------------------------------------------------------------------------
 
 def usage():
-    Log.p( 'FlatBuildTool v1.11 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.12 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
-    Log.p( '  -f <BuildFiles.py>' )
-    Log.p( '  -debug' )
-    Log.p( '  -dump' )
-    Log.p( '  -job <thread>   default system thread count' )
-    Log.p( '  -list           display targets' )
-#    Log.p( '  -env <platform>' )
-    Log.p( '  -opt <prop_name>=<value>' )
-    Log.p( '  -brcc' )
+    Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
+    Log.p( '  --debug' )
+    Log.p( '  --dump' )
+    Log.p( '  --job <thread>     default : system thread count' )
+    Log.p( '  --list             display all targets' )
+#    Log.p( '  --env <platform>' )
+    Log.p( '  --opt <prop_name>=<value>' )
     Log.p( 'parallel action: target1 target2 ...' )
     Log.p( 'sequential action: target1,target2,...' )
     sys.exit( 0 )
@@ -342,26 +367,26 @@ def main():
                 ai+= 1
                 if ai < acount:
                     makefile= sys.argv[ai]
-            elif arg == '-env':
+            elif arg == '--env':
                 ai+= 1
                 if ai < acount:
                     platform= sys.argv[ai]
                 env_dump= True
-            elif arg == '-opt':
+            elif arg == '--opt':
                 ai+= 1
                 if ai < acount:
                     opts= sys.argv[ai].split( '=' )
                     opt_dict[opts[0]]= opts[1]
-            elif arg == '-job':
+            elif arg == '--job':
                 ai+= 1
                 if ai < acount:
                     job_count= int( sys.argv[ai] )
-            elif arg == '-debug':
+            elif arg == '--debug':
                 debug_flag= True
                 Log.DebugLevel= 1
-            elif arg == '-dump':
+            elif arg == '--dump':
                 dump_flag= True
-            elif arg == '-list':
+            elif arg == '--list':
                 list_flag= True
             else:
                 usage()

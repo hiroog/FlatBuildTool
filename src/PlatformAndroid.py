@@ -8,7 +8,8 @@ import  BuildUtility
 from BuildUtility import Log
 
 
-#   P   27  Android 9.0?
+#   P   28  Android 9.0?
+#   O   27  Android 8.1
 #   O   26  Android 8.0
 #   N   25  Android 7.1
 #   N   24  Android 7.0     Daydream

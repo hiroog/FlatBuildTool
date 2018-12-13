@@ -217,12 +217,14 @@ class TargetEnvironmentCommon:
         dir,name= os.path.split( base_file )
         cur_path= os.path.join( dir, file_name )
         if os.path.exists( cur_path ):
-            return  os.path.abspath( cur_path )
+            if os.path.isfile( cur_path ):
+                return  os.path.abspath( cur_path )
         for path in self.INCLUDE_PATH:
             cur_path= os.path.join( path, file_name )
             #print( cur_path )
             if os.path.exists( cur_path ):
-                return  os.path.abspath( cur_path )
+                if os.path.isfile( cur_path ):
+                    return  os.path.abspath( cur_path )
         #print( 'include not found %s from %s' % (file_name, base_file) )
         return  None
 

@@ -73,11 +73,15 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
 
     def findVSPath( self ):
+
         path= self.findVSDir( '15.0' )
+        # disable vs2017
+        #path= None
         if path is not None:
             self.MSVC_DIR= path
             self.MSVC_VERSION= 2017
             return
+
         path= self.findVSDir( '14.0' )
         if path is not None:
             self.MSVC_DIR= path
@@ -256,8 +260,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
-                'x64' : '',
-                'x86' : '-arch:SSE2',
+                'x64' : '-arch:AVX',
+                'x86' : '-arch:AVX',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -314,7 +318,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         base,ext= os.path.splitext(os.path.basename(target))
         lib_path= self.getLibPath( base )
         command.append( '-IMPLIB:' + lib_path )
-        print( lib_path )
+        #print( lib_path )
         command.extend( self.LINK_FLAGS_R )
         return  command
 
