@@ -36,7 +36,6 @@ class FLB_Error( Exception ):
 
 
 
-
 def ExecCommand( command ):
     Log.d( 'ExecCommand ' + str(command) )
     log= ''
@@ -68,10 +67,12 @@ def RemoveTree( path ):
         shutil.rmtree( path )
 
 
+
 def RemoveFile( path ):
     if os.path.exists( path ):
         Log.d( 'Remove File = ' + path )
         os.remove( path )
+
 
 
 def GetEnv( name, default_value= None ):
@@ -80,8 +81,10 @@ def GetEnv( name, default_value= None ):
     return  default_value
 
 
+
 def GetFullPath( path ):
     return  os.path.abspath( path )
+
 
 
 def FindPath( path, env= None  ):
@@ -105,7 +108,7 @@ def GetTimeStamp( file_name ):
 
 def CopyFilesDir( src_list, dest_dir ):
     if not os.path.exists( dest_dir ):
-        os.mkdirs( dest_dir )
+        os.makedirs( dest_dir )
     for src in src_list:
         dir,name= os.path.split( src )
         dest_file= os.path.join( dest_dir, name )
@@ -117,16 +120,22 @@ def CopyFilesDir( src_list, dest_dir ):
 
 
 
-def CopyFiles( src_list, dest_list ):
-    for src,dest in zip( src_list, dest_list ):
+def CopyFilesPair( src_list ):
+    for src,dest in src_list:
         dir,name= os.path.split( dest )
         if not os.path.exists( dir ):
-            os.mkdirs( dir )
+            os.makedirs( dir )
         src_time= GetTimeStamp( src )
         dest_time= GetTimeStamp( dest )
         if src_time > dest_time:
             Log.p( 'copy ' + src + ' ' + dest )
             shutil.copyfile( src, dest )
+
+
+
+def CopyFiles( src_list, dest_list ):
+    CopyFilesPair( zip( src_list, dest_list ) )
+
 
 
 

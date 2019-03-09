@@ -100,9 +100,9 @@ class TargetEnvironmentCommon:
     #--------------------------------------------------------------------------
 
     def setupHostPlatform( self ):
-        #Log.p( 'system= ' + platform.system() )
-        #Log.p( 'machine= ' + platform.machine() )
-        #Log.p( 'processor= ' + platform.processor() )
+        Log.d( 'system= ' + platform.system() )
+        Log.d( 'machine= ' + platform.machine() )
+        Log.d( 'processor= ' + platform.processor() )
         machine= platform.machine()
         table_arch= {
                 'x64'     : 'x64',
@@ -111,6 +111,7 @@ class TargetEnvironmentCommon:
                 'x86'     : 'x86',
                 'i686'    : 'x86',
                 'i386'    : 'x86',
+                'armv8l'  : 'arm64',
                 'armv7l'  : 'arm7',
                 'armv6l'  : 'arm6',
                 'aarch64' : 'arm64',
@@ -190,11 +191,15 @@ class TargetEnvironmentCommon:
     #--------------------------------------------------------------------------
 
 
-    def addIncludePath( self, path ):
-        self.INCLUDE_PATH.extend( path )
+    def addIncludePath( self, paths ):
+        for path in paths:
+            self.INCLUDE_PATH.append( self.tool.getGenericPath( path ) )
+        #self.INCLUDE_PATH.extend( paths )
 
-    def addLibPath( self, path ):
-        self.LIB_PATH.extend( path )
+    def addLibPath( self, paths ):
+        for path in paths:
+            self.LIB_PATH.append( self.tool.getGenericPath( path ) )
+        #self.LIB_PATH.extend( paths )
 
     def addCCFlags( self, flags ):
         self.CC_FLAGS.extend( flags )
@@ -253,7 +258,7 @@ class TargetEnvironmentCommon:
         for path in path_list:
             if os.path.exists( path[0] ):
                 return  path
-        return  None
+        return  None,None
 
     def makeOutputDirectory( self, path ):
         obj_dir= os.path.dirname( path )

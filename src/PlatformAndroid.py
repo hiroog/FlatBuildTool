@@ -8,19 +8,19 @@ import  BuildUtility
 from BuildUtility import Log
 
 
-#   P   28  Android 9.0?
-#   O   27  Android 8.1
-#   O   26  Android 8.0
+#   P  *28  Android 9.0
+#   O  *27  Android 8.1     NeuralNetwork
+#   O  *26  Android 8.0     AAudio WideColor
 #   N   25  Android 7.1
-#   N   24  Android 7.0     Daydream
-#   M   23  Android 6.0
-#   L   22  Android 5.1
-#   L   21  Android 5.0     GLES3.1 64bit
+#   N  *24  Android 7.0     GLES3.2 Daydream Vulkan
+#   M  *23  Android 6.0
+#   L  *22  Android 5.1
+#   L  *21  Android 5.0     GLES3.1 64bit
 #   K   20  Android 4.4W
-#   K   19  Android 4.4
-#   J   18  Android 4.3     GLES3.0
-#   J   17  Android 4.2
-#   J   16  Android 4.1
+#   K  *19  Android 4.4
+#   J  *18  Android 4.3     GLES3.0
+#   J  *17  Android 4.2
+#   J  *16  Android 4.1
 #   I   15  Android 4.0.3
 #   I   14  Android 4.0
 
@@ -107,6 +107,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/system/include' ),
                     os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
+                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/include' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gnu-libstdc++/4.9/include' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gabi++/include' ),
                 ] )

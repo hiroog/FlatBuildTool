@@ -16,3 +16,5 @@ library.zip
 ####
 *.o
 *.a
+*.pyz
+local_config.txt

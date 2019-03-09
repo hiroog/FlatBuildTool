@@ -33,6 +33,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.setDefault()
 
+        Log.d( 'MSVC = %d' % self.MSVC_VERSION )
+        Log.d( 'SDK = ' + self.WINDOWS_SDK_DIR )
+        Log.d( 'SDK Version = ' + self.WINDOWS_SDK_VERSION )
+
 
     def summary( self ):
         super().summary()
@@ -45,13 +49,29 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         return  self.MSVC_DIR is not None
 
 
+    def findVSFromDir( self, version ):
+        if self.getHostArch() == 'x64':
+            X86_PROGRAMFILES= os.environ['ProgramFiles(x86)']
+        else:
+            X86_PROGRAMFILES= os.environ['ProgramFiles']
+        vc_search_path= [
+                os.path.join( X86_PROGRAMFILES, 'Microsoft Visual Studio', version, 'Professional/VC' ),
+                os.path.join( X86_PROGRAMFILES, 'Microsoft Visual Studio', version, 'Community/VC' ),
+                os.path.join( X86_PROGRAMFILES, 'Microsoft Visual Studio', version, 'Preview/VC' ),
+            ]
+        path= self.findPath( vc_search_path )
+        if path is not None:
+            return  os.path.dirname( path )
+        return  None
+
+
     def findVSDir( self, version ):
         try:
             with winreg.OpenKey( winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\SxS\\VS7' ) as key:
                 return  winreg.QueryValueEx( key, version )[0]
             with winreg.OpenKey( winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7' ) as key:
                 return  winreg.QueryValueEx( key, version )[0]
-            with winreg.OpenKey( winreg.HKEY_CURRENT_USER, 'SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\SxS\\VS7' ) as key:
+            with winreg.OpenKey( winreg.HKEY_CURRENT_USER, 'SOFTWARE\\Wow6432Node\\Microsoft\\VisualStudio\\SxS\\VS7' ) as key:
                 return  winreg.QueryValueEx( key, version )[0]
             with winreg.OpenKey( winreg.HKEY_CURRENT_USER, 'SOFTWARE\\Microsoft\\VisualStudio\\SxS\\VS7' ) as key:
                 return  winreg.QueryValueEx( key, version )[0]
@@ -62,11 +82,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         try:
             with winreg.OpenKey( winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\Microsoft\\Microsoft SDKs\\Windows\\' + version ) as key:
                 return  winreg.QueryValueEx( key, 'InstallationFolder' )[0]
-            with winreg.OpenKey( winreg.HKEY_CURRENT_USER, 'SOFTWARE\\WOW6432Node\\Microsoft\\Microsoft SDKs\\Windows\\' + version ) as key:
+            with winreg.OpenKey( winreg.HKEY_CURRENT_USER, 'SOFTWARE\\Wow6432Node\\Microsoft\\Microsoft SDKs\\Windows\\' + version ) as key:
                 return  winreg.QueryValueEx( key, 'InstallationFolder' )[0]
             with winreg.OpenKey( winreg.HKEY_LOCAL_MACHINE, 'SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots' ) as key:
                 return  winreg.QueryValueEx( key, keyname )[0]
-            with winreg.OpenKey( winreg.HKEY_CURRENT_USER, 'SOFTWARE\\WOW6432Node\\Microsoft\\Windows Kits\\Installed Roots' ) as key:
+            with winreg.OpenKey( winreg.HKEY_CURRENT_USER, 'SOFTWARE\\Wow6432Node\\Microsoft\\Windows Kits\\Installed Roots' ) as key:
                 return  winreg.QueryValueEx( key, keyname )[0]
         except OSError:
             return  None
@@ -74,13 +94,30 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def findVSPath( self ):
 
-        path= self.findVSDir( '15.0' )
-        # disable vs2017
-        #path= None
-        if path is not None:
-            self.MSVC_DIR= path
-            self.MSVC_VERSION= 2017
-            return
+        # --opt VC=20xx
+        vc= 2099
+        if 'VC' in self.tool.global_env.USER_OPTION:
+            vc= int( self.tool.global_env.USER_OPTION['VC'] )
+
+        if vc >= 2019:
+            path= self.findVSDir( '16.0' )
+            if path is not None:
+                self.MSVC_DIR= path
+                self.MSVC_VERSION= 2019
+                return
+            else:
+                path= self.findVSFromDir( '2019' )
+                if path is not None:
+                    self.MSVC_DIR= path
+                    self.MSVC_VERSION= 2019
+                    return
+
+        if vc >= 2017:
+            path= self.findVSDir( '15.0' )
+            if path is not None:
+                self.MSVC_DIR= path
+                self.MSVC_VERSION= 2017
+                return
 
         path= self.findVSDir( '14.0' )
         if path is not None:
@@ -99,27 +136,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             return
 
 
-
     def setDefault( self ):
 
-        #if self.getHostArch() == 'x64':
-        #    self.X86_PROGRAMFILES= os.environ['ProgramFiles(x86)']
-        #else:
-        #    self.X86_PROGRAMFILES= os.environ['ProgramFiles']
-
-        #vc_search_path= [
-        #        #(os.path.join( self.X86_PROGRAMFILES, 'Microsoft Visual Studio/2017/Professional/VC' ), 2017),
-        #        #(os.path.join( self.X86_PROGRAMFILES, 'Microsoft Visual Studio/2017/Community/VC' ), 2017),
-        #        (os.path.join( self.X86_PROGRAMFILES, 'Microsoft Visual Studio 14.0/VC' ), 2015),
-        #        (os.path.join( self.X86_PROGRAMFILES, 'Microsoft Visual Studio 12.0/VC' ), 2013),
-        #    ]
-        #if 'FLB_VS2015_DIR' in os.environ:
-        #    vc_search_path.insert( 0, (os.environ['FLB_VS2015_DIR']+'/VC', 2015) )
-        #if 'FLB_VS2017_DIR' in os.environ:
-        #    vc_search_path.insert( 0, (os.environ['FLB_VS2017_DIR']+'/VC', 2017) )
-
-        #msvc_vc_dir, self.MSVC_VERSION= self.findPathPair( vc_search_path )
-        #self.MSVC_DIR= os.path.dirname( msvc_vc_dir )
         self.findSDKPath()
 
 
@@ -133,7 +151,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.MSVC_VC_DIR= self.getVCRoot()
 
 
-        self.addCCFlags( '-W3 -WX -GA -GF -Gy -Zi -EHsc -fp:except- -fp:fast -DWIN32 -D_WINDOWS -nologo -Zc:forScope,wchar_t,auto'.split() )
+        self.addCCFlags( '-W3 -WX -GA -GF -Gy -Zi -EHsc -fp:except- -fp:fast -DWIN32 -D_WINDOWS -nologo -Zc:forScope,wchar_t,auto -utf-8'.split() )
+        #self.addCCFlags( '-std:c++17'.split() )
         self.addLibFlags( ['-nologo'] )
         self.addLinkFlags( ['-nologo'] )
 
@@ -141,7 +160,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
 
     def getVCRoot( self ):
-        if self.MSVC_VERSION == 2017:
+        if self.MSVC_VERSION >= 2017:
             vc_root= os.path.join( self.MSVC_DIR, 'VC/Tools/MSVC' )
             vc_version= sorted( os.listdir( vc_root ), reverse= True )[0]
             return  os.path.join( vc_root, vc_version )
@@ -156,19 +175,31 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.BIN_PATH_R= []
         self.BIN_PATH_R.extend( self.BIN_PATH )
 
-        if self.MSVC_VERSION == 2017:
+        if self.MSVC_VERSION >= 2017:
 
             if self.getHostArch() == 'x64':
                 if self.getTargetArch() == 'x64':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x64' ) )
-                else:
+                elif self.getTargetArch() == 'x86':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x86' ) )
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x64' ) )
+                elif self.getTargetArch() == 'arm':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm' ) )
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x64' ) )
+                elif self.getTargetArch() == 'arm64':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm64' ) )
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x64' ) )
             else:
                 if self.getTargetArch() == 'x64':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x64' ) )
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x86' ) )
-                else:
+                elif self.getTargetArch() == 'x86':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x86' ) )
+                elif self.getTargetArch() == 'arm':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/arm' ) )
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x86' ) )
+                elif self.getTargetArch() == 'arm64':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/arm64' ) )
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x86' ) )
 
         elif self.MSVC_VERSION == 2015:
@@ -218,14 +249,16 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def setupLibPath( self ):
         self.LIB_PATH_R= []
 
-        if self.MSVC_VERSION == 2017:
+        if self.MSVC_VERSION >= 2017:
 
             if self.getTargetArch() == 'x64':
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/x64' ) )
-            elif self.getTargetArch() == 'arm':
-                pass
-            else:
+            elif self.getTargetArch() == 'x86':
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/x86' ) )
+            elif self.getTargetArch() == 'arm':
+                self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/arm' ) )
+            elif self.getTargetArch() == 'arm64':
+                self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/arm64' ) )
 
 
         elif self.MSVC_VERSION == 2015:
@@ -260,8 +293,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
-                'x64' : '-arch:AVX',
-                'x86' : '-arch:AVX',
+                'x64' : '-arch:AVX2 -favor:blend',
+                'x86' : '-arch:AVX2 -favor:blend',
+                'arm' : '-arch:VFPv4',
+                'arm64' : '',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -349,6 +384,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getSupportArchList( self ):
         return  [ 'x64', 'x86' ]
+        #return  [ 'x64', 'x86', 'arm', 'arm64' ]
 
 
 

@@ -332,8 +332,25 @@ class BuildTool:
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
+
+def load_config():
+    script_bin_path= os.path.dirname( sys.argv[0] )
+    config_path= os.path.join( script_bin_path, 'local_config.txt' )
+    opt_dict= {}
+    if os.path.exists( config_path ):
+        with open( config_path, 'r' ) as fi:
+            for line in fi:
+                line= line.strip( ' \t\n' )
+                if line == '' or line[0] == '#':
+                    continue
+                word= line.split()
+                opt_dict[word[0]]= word[1]
+    print( opt_dict )
+    return  opt_dict
+
+
 def usage():
-    Log.p( 'FlatBuildTool v1.12 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.16 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --debug' )
@@ -357,7 +374,7 @@ def main():
     env_dump= False
     job_count= 0
     action_list= []
-    opt_dict= {}
+    opt_dict= load_config()
     acount= len( sys.argv )
     ai= 1
     while ai < acount:
