@@ -16,6 +16,27 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_LINK= 'clang'
         self.CMD_LIB= 'ar'
 
+        # --opt ARM7ABI=hard
+        # --opt ARM7ABI=softfp
+        # --opt ARM7ABI=soft
+        # or 'ARM7ABI hard' in local_config.txt
+        self.ARM7ABI= 'hard'
+        if 'ARM7ABI' in self.tool.global_env.USER_OPTION:
+            self.ARM7ABI= self.tool.global_env.USER_OPTION['ARM7ABI']
+        # --opt ARM7FP=neon
+        # --opt ARM7FP=vfpv3-d16
+        # --opt ARM7FP=neon-vfpv4
+        # or 'ARM7FP neon-vfpv4' in local_config.txt
+        self.ARM7FP= 'neon'
+        if 'ARM7FP' in self.tool.global_env.USER_OPTION:
+            self.ARM7FP= self.tool.global_env.USER_OPTION['ARM7FP']
+        # --opt HOST_ARCH=x86
+        # or 'HOST_ARCH x86' in local_config.txt
+        if 'HOST_ARCH' in self.tool.global_env.USER_OPTION:
+            host_arch= self.tool.global_env.USER_OPTION['HOST_ARCH']
+            self.setHostArch( host_arch )
+            self.setTargetArch( host_arch )
+
         self.setDefault()
 
 
@@ -30,9 +51,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.setTargetPlatform( 'Linux' )
 
         self.setConfig( 'Debug' )
-        self.addCCFlags( '-Wall -std=gnu++1z -fno-rtti -fno-exceptions -ffast-math'.split() )
+        self.addCCFlags( '-fpic -Wall -std=gnu++1z -fno-rtti -fno-exceptions -ffast-math'.split() )
         #self.addCCFlags( '-Wall -std=c++14 -fno-rtti -fno-exceptions -ffast-math'.split() )
-        self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2 -DFLB_FORCE_LINUX=1'.split() )
+        self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2 -DFLB_FORCE_LINUX=1 -DFLB_TARGET_LINUX=1'.split() )
+        #self.addCCFlags( '-funwind-tables -fstack-protector-strong -no-canonical-prefixes'.split() )
 
         self.addLibrary( [ 'stdc++', 'pthread', 'm'] )
 
@@ -46,26 +68,27 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.CC_FLAGS_R= []
         table_config= {
-                'Debug'   : "-O0 -D_DEBUG",
-                'Release' : "-Os -O3 -DNDEBUG",
+                'Debug'   : "-O0 -g -D_DEBUG",
+                'Release' : "-Os -g -O3 -DNDEBUG",
                 'Retail'  : "-Os -O3 -DNDEBUG -DFLB_RETAIL=1",
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
-        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
-            'x86':   '-m32 -msse3 -mssse3 -msse4.1 -maes',
-            'x64':   '-m64 -msse3 -mssse3 -msse4.1 -maes',
-            'arm7':  '-march=armv7-a -marm -mfpu=vfpv3 -mfpu=neon -mfloat-abi=hard -fPIC',
-            'arm7s': '-march=armv7-a -marm -mfpu=neon-vfpv4 -mfloat-abi=hard',
-            'arm6':  '-marm -mfpu=vfp -mfloat-abi=hard',
+            'x86':   '-m32 -msse -msse2 -msse3 -mssse3 -maes',
+            'x64':   '-m64 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes',
+            'arm7':  '-march=armv7-a -fPIC -marm -mfpu=%s -mfloat-abi=%s' % (self.ARM7FP, self.ARM7ABI),
+            'arm6':  '-march=armv6 -marm -mfpu=vfp -mfloat-abi=hard',
             'arm64': '-march=armv8-a+crypto',
+            #'arm64': '-march=armv8.2-a+crypto+fp16',
+            #'arm64': '-march=armv8-a+crypto -mfpu=crypto-neon-fp-armv8',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
         for inc in self.INCLUDE_PATH_R:
             #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
+        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
 
 

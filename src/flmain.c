@@ -52,7 +52,7 @@ int wmain()
 			wcscpy_s( eptr, NAME_LENGTH, L"python" VERSION_STR ".zip;." );
 			if( eptr != filename ){
 				eptr[-1]= L'\0';
-				wcscpy_s( eptr + 13, NAME_LENGTH, filename );
+				wcscpy_s( eptr + 13, length, filename );
 				eptr[-1]= '/';
 			}
 		}
@@ -62,7 +62,7 @@ int wmain()
 		Py_SetPath( filename );
 
 #if USE_PYZFILE
-		wcscpy_s( eptr, 24, L"flmake.pyz" );
+		wcscpy_s( eptr, NAME_LENGTH, L"flmake.pyz" );
 #endif
 	}
 

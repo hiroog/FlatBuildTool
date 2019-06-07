@@ -36,6 +36,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         #self.addCCFlags( '-Wall -std=gnu++14 -fno-rtti -fno-exceptions -ffast-math'.split() )
         self.addCCFlags( '-Wall -fno-rtti -fno-exceptions -ffast-math'.split() )
         self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2'.split() )
+        self.addCCFlags( ['-DFLB_TARGET_MACOS=1'] )
 
         self.OBJC_FLAGS= '-fobjc-arc -DOBJC_OLD_DISPATCH_PROTOTYPES=0'.split()
 
@@ -56,7 +57,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                 'Retail'  : "-Os -O3 -DNDEBUG -DFLB_RETAIL=1",
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
-        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
             'x86':   '-m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mavx2 -mf16c -mfma',
@@ -67,6 +67,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for inc in self.INCLUDE_PATH_R:
             #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
+        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
 
 

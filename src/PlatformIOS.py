@@ -63,7 +63,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                 'Retail'  : "-Os -O3 -DNDEBUG -DFLB_RETAIL=1",
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
-        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
             'arm7':    '-arch armv7',
@@ -75,6 +74,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for inc in self.INCLUDE_PATH_R:
             #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
+        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
 
 

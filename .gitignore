@@ -16,5 +16,8 @@ library.zip
 ####
 *.o
 *.a
-*.pyz
 local_config.txt
+*.pyz
+obj
+###
+.cpu_count_cache.txt

@@ -117,6 +117,7 @@ def CopyFilesDir( src_list, dest_dir ):
         if src_time > dest_time:
             Log.p( 'copy ' + src + ' ' + dest_file )
             shutil.copyfile( src, dest_file )
+            shutil.copymode( src, dest_file )
 
 
 
@@ -130,6 +131,7 @@ def CopyFilesPair( src_list ):
         if src_time > dest_time:
             Log.p( 'copy ' + src + ' ' + dest )
             shutil.copyfile( src, dest )
+            shutil.copymode( src, dest )
 
 
 

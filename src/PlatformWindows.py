@@ -95,6 +95,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def findVSPath( self ):
 
         # --opt VC=20xx
+        # or 'VC 20xx' in local_config.txt
         vc= 2099
         if 'VC' in self.tool.global_env.USER_OPTION:
             vc= int( self.tool.global_env.USER_OPTION['VC'] )
@@ -153,6 +154,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.addCCFlags( '-W3 -WX -GA -GF -Gy -Zi -EHsc -fp:except- -fp:fast -DWIN32 -D_WINDOWS -nologo -Zc:forScope,wchar_t,auto -utf-8'.split() )
         #self.addCCFlags( '-std:c++17'.split() )
+        self.addCCFlags( ['-DFLB_TARGET_WINDOWS=1'] )
+
         self.addLibFlags( ['-nologo'] )
         self.addLinkFlags( ['-nologo'] )
 
@@ -290,7 +293,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
         self.CC_FLAGS_R.append( '-Fd' + self.getOutputPath( self.OUTPUT_OBJ_DIR, 'vc.pdb'  ) )
         self.CC_FLAGS_R.append( '-FS' )
-        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
         table_arch= {
                 'x64' : '-arch:AVX2 -favor:blend',
@@ -303,6 +305,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for inc in self.INCLUDE_PATH_R:
             #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
+        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
 
     def setupLinkFlags( self ):

@@ -3,18 +3,8 @@
 
 
 def compile( task ):
-
-    if task.env.getHostPlatform() == 'Windows':
-        PYZ_FILE= 'flmake.pyz'
-    else:
-        PYZ_FILE= '../bin/flmake.pyz'
-    TEMP_DIR= 'obj'
-    MAIN_FILE= 'flmain.exe'
-    EXE_FILE= '../bin/flmake.exe'
-    if not os.path.exists( '../bin' ):
-        os.mkdir( '../bin' )
-
     ### pyc compile
+    TEMP_DIR= 'obj'
     if not os.path.exists( TEMP_DIR ):
         os.mkdir( TEMP_DIR )
     src_list= [
@@ -22,6 +12,7 @@ def compile( task ):
             'BuildUtility.py',
             'Depend.py',
             'JobQueue.py',
+            'CpuCountLib.py',
             'PlatformCommon.py',
             'PlatformAndroid.py',
             'PlatformLinux.py',
@@ -34,43 +25,55 @@ def compile( task ):
     import  py_compile
     for src in src_list:
         py_compile.compile( src, cfile= TEMP_DIR + '/' + src + 'c' )
+
+    ### pyz build
+    FLMAKE_PYZ= 'flmake.pyz'
     import  zipapp
-    zipapp.create_archive( TEMP_DIR, PYZ_FILE, '/usr/bin/env python3', 'FlatBuildTool:main' )
-    os.chmod( PYZ_FILE, 0o755 )
+    zipapp.create_archive( TEMP_DIR, FLMAKE_PYZ, '/usr/bin/env python3', 'FlatBuildTool:main' )
+    os.chmod( FLMAKE_PYZ, 0o755 )
 
     if task.env.getHostPlatform() == 'Windows':
 
         ### exe compile
-        csrc_code= 'flmain.c'
-        from distutils.ccompiler import new_compiler
-        import distutils.sysconfig
-        from pathlib import Path
-        src= Path( csrc_code )
-        cc= new_compiler()
-        exe= src.stem
-        cc.add_include_dir( distutils.sysconfig.get_python_inc() )
-        cc.add_library_dir( os.path.join( sys.base_exec_prefix, 'libs' ) )
-        objs= cc.compile( [ str(src) ] )
-        cc.link_executable( objs, exe )
+        MAIN_EXE= 'flmain.exe'
+        FLMAKE_EXE= 'flmake.exe'
+        if not os.path.exists( MAIN_EXE ):
+            csrc_code= 'flmain.c'
+            from distutils.ccompiler import new_compiler
+            import distutils.sysconfig
+            from pathlib import Path
+            src= Path( csrc_code )
+            cc= new_compiler()
+            exe= src.stem
+            cc.add_include_dir( distutils.sysconfig.get_python_inc() )
+            cc.add_library_dir( os.path.join( sys.base_exec_prefix, 'libs' ) )
+            objs= cc.compile( [ str(src) ] )
+            cc.link_executable( objs, exe )
 
         ### append
-        with open( EXE_FILE, 'wb' ) as fo:
-            with open( MAIN_FILE, 'rb' ) as fi:
+        with open( FLMAKE_EXE, 'wb' ) as fo:
+            with open( MAIN_EXE, 'rb' ) as fi:
                 fo.write( fi.read() )
-            with open( PYZ_FILE, 'rb' ) as fi:
+            with open( FLMAKE_PYZ, 'rb' ) as fi:
                 fo.write( fi.read() )
 
         ### copy
         copy_list= [
                 'FLB_Default.py',
                 'flmake.exe',
+                'local_config.sample.txt',
             ]
     else:
         ### copy
         copy_list= [
                 'FLB_Default.py',
+                'flmake.pyz',
+                'local_config.sample.txt',
+                'local_config.termux.txt',
             ]
-    BuildUtility.CopyFilesDir( copy_list, '../bin' )
+    ### install
+    INSTALL_DIR= '../bin'
+    BuildUtility.CopyFilesDir( copy_list, INSTALL_DIR )
 
 
 

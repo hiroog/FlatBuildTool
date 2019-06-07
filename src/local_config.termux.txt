@@ -1,0 +1,2 @@
+ARM7ABI softfp
+#HOST_ARCH x86

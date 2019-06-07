@@ -153,6 +153,9 @@ class TargetEnvironmentCommon:
     def setTargetPlatform( self, target ):
         self.TARGET_PLATFORM= target
 
+    def setHostArch( self, arch ):
+        self.HOST_ARCH= arch
+
     def getConfig( self ):
         return  self.CONFIG
 

@@ -8,11 +8,12 @@ import  BuildUtility
 from BuildUtility import Log
 
 
+#   Q  *29  Android 10.0    MIDI
 #   P  *28  Android 9.0
-#   O  *27  Android 8.1     NeuralNetwork
-#   O  *26  Android 8.0     AAudio WideColor
+#   O  *27  Android 8.1     NeuralNetwork(NNAPI)
+#   O  *26  Android 8.0     AAudio WideColor Sync
 #   N   25  Android 7.1
-#   N  *24  Android 7.0     GLES3.2 Daydream Vulkan
+#   N  *24  Android 7.0     GLES3.2 Daydream Vulkan Camera
 #   M  *23  Android 6.0
 #   L  *22  Android 5.1
 #   L  *21  Android 5.0     GLES3.1 64bit
@@ -22,7 +23,17 @@ from BuildUtility import Log
 #   J  *17  Android 4.2
 #   J  *16  Android 4.1
 #   I   15  Android 4.0.3
-#   I   14  Android 4.0
+#   I   14  Android 4.0     OpenMAXAL OpenSLES_PCM
+#   H   13  Android 3.2
+#   H   12  Android 3.1
+#   H   11  Android 3.0
+#   G   10  Android 2.3.3
+#   G    9  Android 2.3     EGL OpenSLES
+#   F    8  Android 2.2     Bitmap
+#   E    7  Android 2.1
+#   E    6  Android 2.0.1
+#   E    5  Android 2.0     GLES2.0
+#   D    4  Android 1.6     GLES1.0
 
 
 
@@ -102,6 +113,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type'.split() )
 #        self.addCCFlags( '-gdwarf-2'.split() )
         self.addCCFlags( '-fno-diagnostics-color'.split() )
+        self.addCCFlags( ['-DFLB_TARGET_ANDROID=1', '-DANDROID'] )
 
         self.addIncludePath( [
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
@@ -244,10 +256,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                 'Retail'  : "-Os -g -O3 -DNDEBUG -DFLB_RETAIL=1",
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
-        self.CC_FLAGS_R.extend( self.CC_FLAGS )
-        self.CC_FLAGS_R.append( '-DANDROID' )
         self.CC_FLAGS_R.append( '-D__ANDROID_API__=%d' % self.API_LEVEL )
-
 
 
         target_arch_table= {
@@ -284,6 +293,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for inc in self.INCLUDE_PATH_R:
             #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
+        self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
 
     def refresh( self ):

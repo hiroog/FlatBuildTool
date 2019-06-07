@@ -1,0 +1,12 @@
+# -- Windows options
+#VC 2015
+#VC 2017
+#VC 2019
+# -- Linux options
+#ARM7FP neon
+#ARM7FP neon-vfpv4
+#ARM7FP vfpv3-d16
+#ARM7ABI hard
+#ARM7ABI softfp
+#ARM7ABI soft
+#HOST_ARCH x86

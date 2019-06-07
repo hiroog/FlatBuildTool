@@ -3,8 +3,8 @@
 
 import  os
 import  threading
-import  multiprocessing
 import  BuildUtility
+import  CpuCountLib
 
 from collections import deque
 from BuildUtility import Log
@@ -89,7 +89,8 @@ class ThreadPool:
         self.lock= threading.Lock()
         self.max_thread= max_thread
         if max_thread == 0:
-            self.max_thread= multiprocessing.cpu_count()
+            #self.max_thread= os.cpu_count()
+            self.max_thread= CpuCountLib.getCpuCount()
         self.thread_list= []
         Log.p( 'Thread = %d' % self.max_thread )
 
