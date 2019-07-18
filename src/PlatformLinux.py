@@ -46,6 +46,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def isValid( self ):
         return  True
 
+    def isTermux( self ):
+        if 'HOME' in os.environ:
+            if 'com.termux' in os.environ['HOME']:
+                return  True
+        return  False
 
     def setDefault( self ):
         self.setTargetPlatform( 'Linux' )
@@ -56,7 +61,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2 -DFLB_FORCE_LINUX=1 -DFLB_TARGET_LINUX=1'.split() )
         #self.addCCFlags( '-funwind-tables -fstack-protector-strong -no-canonical-prefixes'.split() )
 
-        self.addLibrary( [ 'stdc++', 'pthread', 'm'] )
+        self.addLibraries( [ 'stdc++', 'pthread', 'm'] )
 
         self.refresh()
 

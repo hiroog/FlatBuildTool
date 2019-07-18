@@ -194,12 +194,12 @@ class TargetEnvironmentCommon:
     #--------------------------------------------------------------------------
 
 
-    def addIncludePath( self, paths ):
+    def addIncludePaths( self, paths ):
         for path in paths:
             self.INCLUDE_PATH.append( self.tool.getGenericPath( path ) )
         #self.INCLUDE_PATH.extend( paths )
 
-    def addLibPath( self, paths ):
+    def addLibPaths( self, paths ):
         for path in paths:
             self.LIB_PATH.append( self.tool.getGenericPath( path ) )
         #self.LIB_PATH.extend( paths )
@@ -213,7 +213,7 @@ class TargetEnvironmentCommon:
     def addLibFlags( self, flags ):
         self.LIB_FLAGS.extend( flags )
 
-    def addLibrary( self, libs ):
+    def addLibraries( self, libs ):
         self.LINK_LIBS.extend( libs )
 
     #--------------------------------------------------------------------------

@@ -115,7 +115,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addCCFlags( '-fno-diagnostics-color'.split() )
         self.addCCFlags( ['-DFLB_TARGET_ANDROID=1', '-DANDROID'] )
 
-        self.addIncludePath( [
+        self.addIncludePaths( [
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/system/include' ),
                     os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
@@ -124,7 +124,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gabi++/include' ),
                 ] )
 
-        self.addLibrary( [ 'stdc++', 'pthread', 'm'] )
+        self.addLibraries( [ 'stdc++', 'pthread', 'm'] )
 
         self.refresh()
 
