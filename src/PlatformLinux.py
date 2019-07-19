@@ -16,6 +16,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_LINK= 'clang'
         self.CMD_LIB= 'ar'
 
+        if self.isTermux():
+            if self.getHostArch() == 'arm7':
+                self.ARM7ABI= 'softfp'
+
         # --opt ARM7ABI=hard
         # --opt ARM7ABI=softfp
         # --opt ARM7ABI=soft
@@ -36,6 +40,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             host_arch= self.tool.global_env.USER_OPTION['HOST_ARCH']
             self.setHostArch( host_arch )
             self.setTargetArch( host_arch )
+
 
         self.setDefault()
 
