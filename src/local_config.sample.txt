@@ -1,3 +1,4 @@
+### flmake --opt <VAR>=<OPT>
 # -- Windows options
 #VC 2015
 #VC 2017
