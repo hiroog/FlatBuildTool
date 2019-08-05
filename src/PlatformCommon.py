@@ -82,7 +82,7 @@ class TargetEnvironmentCommon:
 
     #--------------------------------------------------------------------------
 
-    def getOption( self, name, def_value= None ):
+    def getUserOption( self, name, def_value= None ):
         if name in self.USER_OPTION:
             return  self.USER_OPTION[ name ]
         return  def_value

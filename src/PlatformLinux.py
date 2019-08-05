@@ -24,20 +24,16 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt ARM7ABI=softfp
         # --opt ARM7ABI=soft
         # or 'ARM7ABI hard' in local_config.txt
-        self.ARM7ABI= 'hard'
-        if 'ARM7ABI' in self.tool.global_env.USER_OPTION:
-            self.ARM7ABI= self.tool.global_env.USER_OPTION['ARM7ABI']
+        self.ARM7ABI= self.getUserOption( 'ARM7ABI', 'hard' )
         # --opt ARM7FP=neon
         # --opt ARM7FP=vfpv3-d16
         # --opt ARM7FP=neon-vfpv4
         # or 'ARM7FP neon-vfpv4' in local_config.txt
-        self.ARM7FP= 'neon'
-        if 'ARM7FP' in self.tool.global_env.USER_OPTION:
-            self.ARM7FP= self.tool.global_env.USER_OPTION['ARM7FP']
+        self.ARM7FP= self.getUserOption( 'ARM7FP', 'neon' )
         # --opt HOST_ARCH=x86
         # or 'HOST_ARCH x86' in local_config.txt
-        if 'HOST_ARCH' in self.tool.global_env.USER_OPTION:
-            host_arch= self.tool.global_env.USER_OPTION['HOST_ARCH']
+        host_arch= self.getUserOption( 'HOST_ARCH', None )
+        if host_arch is not None:
             self.setHostArch( host_arch )
             self.setTargetArch( host_arch )
 

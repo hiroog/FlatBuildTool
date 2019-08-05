@@ -3,6 +3,12 @@
 #VC 2015
 #VC 2017
 #VC 2019
+#SSE AVX2
+#SSE AVX
+#SSE SSE4.2
+#SSE SSE4.1
+#SSE SSSE3
+#SSE SSE3
 # -- Linux options
 #ARM7FP neon
 #ARM7FP neon-vfpv4

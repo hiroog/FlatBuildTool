@@ -87,6 +87,9 @@ class BuildTool:
     def findPath( self, path, env= None ):
         return  BuildUtility.FindPath( path, env )
 
+    def findPaths( self, path_list ):
+        return  BuildUtility.FindPaths( path )
+
     def getGenericPath( self, file ):
         #return  os.path.normpath( file )
         return  os.path.abspath( file )

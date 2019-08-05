@@ -96,9 +96,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         # --opt VC=20xx
         # or 'VC 20xx' in local_config.txt
-        vc= 2099
-        if 'VC' in self.tool.global_env.USER_OPTION:
-            vc= int( self.tool.global_env.USER_OPTION['VC'] )
+        vc= int(self.getUserOption( 'VC', '2099' ))
 
         if vc >= 2019:
             path= self.findVSDir( '16.0' )
@@ -294,9 +292,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.append( '-Fd' + self.getOutputPath( self.OUTPUT_OBJ_DIR, 'vc.pdb'  ) )
         self.CC_FLAGS_R.append( '-FS' )
 
+        # --opt SSE=AVX
+        sse= self.getUserOption( 'SSE', 'AVX2' )
         table_arch= {
-                'x64' : '-arch:AVX2 -favor:blend',
-                'x86' : '-arch:AVX2 -favor:blend',
+                'x64' : '-arch:'+sse+' -favor:blend',
+                'x86' : '-arch:'+sse+' -favor:blend',
                 'arm' : '-arch:VFPv4',
                 'arm64' : '',
             }

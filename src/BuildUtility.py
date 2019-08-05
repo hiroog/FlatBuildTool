@@ -94,9 +94,22 @@ def FindPath( path, env= None  ):
     if env is not None:
         result= GetEnv( env )
         if result is not None:
+            if not os.path.exists( result ):
+                Log.e( 'Not found '+ str(result) )
             return  result
+    Log.e( 'Path not found ' + str(path) + ' ' + str(env) )
     return  None
 
+
+def FindPaths( path_list ):
+    for path in path_list:
+        if path[0] == '$':
+            path= GetEnv( path[1:] )
+        result= os.path.abspath( path )
+        if os.path.exists( result ):
+            return  result
+    Log.e( 'Path not found ' + str(path_list) )
+    return  None
 
 
 def GetTimeStamp( file_name ):
