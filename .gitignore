@@ -4,6 +4,7 @@ __pycache__
 bin
 library.zip
 .hg
+.hg-backup
 *.swp
 *.swo
 #### Windows
