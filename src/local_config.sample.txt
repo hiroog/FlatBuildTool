@@ -17,3 +17,6 @@
 #ARM7ABI softfp
 #ARM7ABI soft
 #HOST_ARCH x86
+# -- macOS options
+#SSE AVX
+#SSE AVX2

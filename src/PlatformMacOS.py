@@ -58,10 +58,17 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
 
-        table_arch= {
-            'x86':   '-m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mavx2 -mf16c -mfma',
-            'x64':   '-m64              -msse3 -mssse3 -msse4.1 -maes -mavx -mavx2 -mf16c -mfma',
-            }
+        sse= self.getUserOption( 'SSE', 'AVX2' )
+        if sse == 'AVX2': ### Haswell
+            table_arch= {
+                'x86':   '-m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mavx2 -mf16c -mfma',
+                'x64':   '-m64              -msse3 -mssse3 -msse4.1 -maes -mavx -mavx2 -mf16c -mfma',
+                }
+        else: ### IvyBridge
+            table_arch= {
+                'x86':   '-m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c',
+                'x64':   '-m64              -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c',
+                }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
         for inc in self.INCLUDE_PATH_R:
