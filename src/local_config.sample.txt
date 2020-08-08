@@ -3,6 +3,7 @@
 #VC 2015
 #VC 2017
 #VC 2019
+#SSE AVX512
 #SSE AVX2
 #SSE AVX
 #SSE SSE4.2
@@ -20,3 +21,4 @@
 # -- macOS options
 #SSE AVX
 #SSE AVX2
+#SSE AVX512
