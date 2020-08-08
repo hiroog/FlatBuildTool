@@ -80,6 +80,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
 
+        sse= self.getUserOption( 'SSE', 'AVX2' )
+        if sse == 'AVX512':
+            avx_opt= ' -mavx2 -mfma -mavx512f -mavx512vl -mavx512bw -mavx512dq -mavx512vnni'
+        elif sse == 'AVX2':
+            avx_opt= ' -mavx2 -mfma'
         table_arch= {
             'x86':   '-m32 -msse -msse2 -msse3 -mssse3 -maes',
             'x64':   '-m64 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes',
