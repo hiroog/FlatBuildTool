@@ -60,9 +60,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         sse= self.getUserOption( 'SSE', 'AVX2' )
         if sse == 'AVX512': ### IceLake
-            avx_opt= '-mavx2 -mfma -mavx512f -mavx512cd -mavx512vl -mavx512bw -mavx512qd -mavx512ifma -mavx512vbmi -max512vnni -mavx512vbmi2 -mavx512bitalg -mavx512vpopcntdq -maes -mvaes'
+            avx_opt= ' -mavx2 -mfma -mavx512f -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mavx512vbmi -mavx512vnni -mavx512vbmi2 -mavx512bitalg -mavx512vpopcntdq -maes -mvaes'
         elif sse == 'AVX2': ### Haswell
-            avx_opt= '-mavx2 -mfma'
+            avx_opt= ' -mavx2 -mfma'
         table_arch= {
             'x86':   '-m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c' + avx_opt,
             'x64':   '-m64              -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c' + avx_opt,
