@@ -30,13 +30,21 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt ARM7FP=neon-vfpv4
         # or 'ARM7FP neon-vfpv4' in local_config.txt
         self.ARM7FP= self.getUserOption( 'ARM7FP', 'neon' )
+        # --opt ARM8ARCH=armv8-a+crypto
+        # --opt ARM8ARCH=armv8.2-a+crypto+fp16
+        # --opt ARM8ARCH=armv8.3-a+crypto+fp16
+        # or 'ARM8ARCH armv8.2-a+crypto+fp16' in local_config.txt
+        self.ARM8ARCH= self.getUserOption( 'ARM8ARCH', 'armv8-a+crypto' )
         # --opt HOST_ARCH=x86
         # or 'HOST_ARCH x86' in local_config.txt
         host_arch= self.getUserOption( 'HOST_ARCH', None )
         if host_arch is not None:
             self.setHostArch( host_arch )
             self.setTargetArch( host_arch )
-
+        # --opt SSE=AVX2
+        # --opt SSE=AVX512
+        # or 'SSE AVX512' in local_config.txt
+        self.SSE= self.getUserOption( 'SSE', 'SSE' )
 
         self.setDefault()
 
@@ -69,7 +77,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     #--------------------------------------------------------------------------
 
-
     def setupCCFlags( self ):
 
         self.CC_FLAGS_R= []
@@ -80,19 +87,17 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
 
-        sse= self.getUserOption( 'SSE', 'AVX2' )
-        if sse == 'AVX512':
+        avx_opt= ''
+        if self.SSE == 'AVX512':
             avx_opt= ' -mavx2 -mfma -mavx512f -mavx512vl -mavx512bw -mavx512dq -mavx512vnni'
-        elif sse == 'AVX2':
+        elif self.SSE == 'AVX2':
             avx_opt= ' -mavx2 -mfma'
         table_arch= {
-            'x86':   '-m32 -msse -msse2 -msse3 -mssse3 -maes',
-            'x64':   '-m64 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes',
+            'x86':   '-m32 -msse -msse2 -msse3 -mssse3 -maes' + avx_opt,
+            'x64':   '-m64 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes' + avx_opt,
             'arm7':  '-march=armv7-a -fPIC -marm -mfpu=%s -mfloat-abi=%s' % (self.ARM7FP, self.ARM7ABI),
             'arm6':  '-march=armv6 -marm -mfpu=vfp -mfloat-abi=hard',
-            'arm64': '-march=armv8-a+crypto',
-            #'arm64': '-march=armv8.2-a+crypto+fp16',
-            #'arm64': '-march=armv8-a+crypto -mfpu=crypto-neon-fp-armv8',
+            'arm64': '-march=' + self.ARM8ARCH,
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -100,7 +105,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
-
 
 
     #--------------------------------------------------------------------------
@@ -138,12 +142,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             command.append( src )
         command.extend( self.LIB_FLAGS_R )
         return  command
-
-
-
-
-
-
 
 
 

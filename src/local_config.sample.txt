@@ -17,8 +17,13 @@
 #ARM7ABI hard
 #ARM7ABI softfp
 #ARM7ABI soft
+#ARM8ARCH armv8-a+crypto
+#ARM8ARCH armv8.2-a+crypto+fp16
+#ARM8ARCH armv8.3-a+crypto+fp16
 #HOST_ARCH x86
-# -- macOS options
-#SSE AVX
-#SSE AVX2
 #SSE AVX512
+#SSE AVX2
+# -- macOS options
+#SSE AVX512
+#SSE AVX2
+#SSE AVX
