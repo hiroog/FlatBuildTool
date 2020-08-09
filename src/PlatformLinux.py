@@ -16,6 +16,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_LINK= 'clang'
         self.CMD_LIB= 'ar'
 
+        self.ARM7ABI= 'hard'
         if self.isTermux():
             if self.getHostArch() == 'arm7':
                 self.ARM7ABI= 'softfp'
@@ -24,7 +25,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt ARM7ABI=softfp
         # --opt ARM7ABI=soft
         # or 'ARM7ABI hard' in local_config.txt
-        self.ARM7ABI= self.getUserOption( 'ARM7ABI', 'hard' )
+        self.ARM7ABI= self.getUserOption( 'ARM7ABI', self.ARM7ABI )
         # --opt ARM7FP=neon
         # --opt ARM7FP=vfpv3-d16
         # --opt ARM7FP=neon-vfpv4

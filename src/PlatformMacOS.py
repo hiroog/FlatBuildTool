@@ -59,8 +59,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
 
         sse= self.getUserOption( 'SSE', 'AVX2' )
+        avx_opt= ''
         if sse == 'AVX512': ### IceLake
-            avx_opt= ' -mavx2 -mfma -mavx512f -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mavx512vbmi -mavx512vnni -mavx512vbmi2 -mavx512bitalg -mavx512vpopcntdq -maes -mvaes'
+            avx_opt= ' -mavx2 -mfma -mavx512f -mavx512vl -mavx512bw -mavx512dq -mavx512ifma -mavx512vbmi -mavx512vnni -mavx512vbmi2 -mavx512bitalg -mavx512vpopcntdq -mvaes'
         elif sse == 'AVX2': ### Haswell
             avx_opt= ' -mavx2 -mfma'
         table_arch= {
