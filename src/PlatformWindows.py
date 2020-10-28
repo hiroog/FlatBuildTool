@@ -151,7 +151,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
 
         self.addCCFlags( '-W3 -WX -GA -GF -Gy -Zi -EHsc -fp:except- -fp:fast -DWIN32 -D_WINDOWS -nologo -Zc:forScope,wchar_t,auto -utf-8'.split() )
-        self.addCCFlags( '-std:c++17'.split() )
+        #self.addCCFlags( '-std:c++17'.split() )
+        self.addCCFlags( '-std:c++latest'.split() )
         self.addCCFlags( ['-DFLB_TARGET_WINDOWS=1'] )
 
         self.addLibFlags( ['-nologo'] )
