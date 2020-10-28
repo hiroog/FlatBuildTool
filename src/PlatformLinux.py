@@ -66,8 +66,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.setTargetPlatform( 'Linux' )
 
         self.setConfig( 'Debug' )
-        self.addCCFlags( '-fpic -Wall -std=gnu++1z -fno-rtti -fno-exceptions -ffast-math'.split() )
-        #self.addCCFlags( '-Wall -std=c++14 -fno-rtti -fno-exceptions -ffast-math'.split() )
+        self.addCCFlags( '-fpic -Wall -std=c++2a -fno-rtti -fno-exceptions -ffast-math'.split() )
         self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2 -DFLB_FORCE_LINUX=1 -DFLB_TARGET_LINUX=1'.split() )
         #self.addCCFlags( '-funwind-tables -fstack-protector-strong -no-canonical-prefixes'.split() )
 
