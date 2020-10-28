@@ -18,6 +18,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_CC= '/usr/bin/clang++'
         self.CMD_LINK= '/usr/bin/clang++'
         self.CMD_LIB= 'ar'
+        self.STD= self.getUserOption( 'STD', '17' )
 
         self.setDefault()
 
@@ -87,13 +88,15 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for src in src_list:
             base,ext= os.path.splitext( src.lower() )
             if ext == '.m':
-                command.extend( '-x objective-c -std=gnu11'.split() )
+                command.extend( '-x objective-c -std=gnu17'.split() )
                 command.extend( self.OBJC_FLAGS )
             elif ext == '.mm':
-                command.extend( '-x objective-c++ -std=gnu++14 -stdlib=libc++'.split() )
+                command.extend( '-x objective-c++ -stdlib=libc++'.split() )
+                command.extend( ['-std=c++'+self.STD] )
                 command.extend( self.OBJC_FLAGS )
             else:
-                command.extend( '-x c++ -std=gnu++14 -stdlib=libc++'.split() )
+                command.extend( '-x c++ -stdlib=libc++'.split() )
+                command.extend( ['-std=c++'+self.STD] )
             command.append( src )
         command.append( '-o' )
         command.append( target )

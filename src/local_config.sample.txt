@@ -27,3 +27,8 @@
 #SSE AVX512
 #SSE AVX2
 #SSE AVX
+# -- c++ options
+#STD 11
+#STD 14
+#STD 17
+#STD 20

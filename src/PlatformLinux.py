@@ -46,6 +46,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt SSE=AVX512
         # or 'SSE AVX512' in local_config.txt
         self.SSE= self.getUserOption( 'SSE', 'SSE' )
+        self.STD= self.getUserOption( 'STD', '17' )
 
         self.setDefault()
 
@@ -66,7 +67,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.setTargetPlatform( 'Linux' )
 
         self.setConfig( 'Debug' )
-        self.addCCFlags( '-fpic -Wall -std=c++2a -fno-rtti -fno-exceptions -ffast-math'.split() )
+        self.addCCFlags( '-fpic -Wall -fno-rtti -fno-exceptions -ffast-math'.split() )
+        self.addCCFlags( ['-std=c++'+self.STD] )
         self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2 -DFLB_FORCE_LINUX=1 -DFLB_TARGET_LINUX=1'.split() )
         #self.addCCFlags( '-funwind-tables -fstack-protector-strong -no-canonical-prefixes'.split() )
 
