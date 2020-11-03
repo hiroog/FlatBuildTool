@@ -1,5 +1,3 @@
-
-
 genv.SAMPLELIB_PATH= tool.findPath( '../samplelib' )
 tool.execScript( '../DefaultSettings.py' )
 
