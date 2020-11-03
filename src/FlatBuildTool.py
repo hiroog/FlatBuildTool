@@ -7,20 +7,13 @@ import  time
 import  Depend
 import  JobQueue
 import  BuildUtility
-
 import  PlatformCommon
-
 from BuildUtility import Log
 
-
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
-
 
 class BuildTool:
-
 
     def __init__( self, job_count= 0, option= None ):
         self.thread_pool= JobQueue.ThreadPool( job_count )
@@ -46,7 +39,6 @@ class BuildTool:
         self.source_cache.dump()
         self.task_cache.dump()
 
-
     #--------------------------------------------------------------------------
 
     def addPlatform( self, platform_name, platform_env ):
@@ -60,7 +52,6 @@ class BuildTool:
             return  self.platform_table[ platform ].TargetEnvironment( self, self.global_env )
         #raise BuildUtility.FLB_Error( 'platform "%s" not found' % platform )
         return  PlatformCommon.PlatformError( self )
-
 
     #--------------------------------------------------------------------------
 
@@ -127,8 +118,6 @@ class BuildTool:
         self.thread_pool.addJob( job )
 
     #--------------------------------------------------------------------------
-
-
 
     def addObjTask( self, env, target, src_list ):
         #abs_target= os.path.abspath( target )
@@ -281,21 +270,10 @@ class BuildTool:
             return  self.addNamedTask( env, name, task_list )
         return  None
 
-
-
     #--------------------------------------------------------------------------
-
-
-
-
-
-    #--------------------------------------------------------------------------
-
 
     def createSourceFile( self, env, file_name ):
         return  Depend.SourceFile( env, file_name )
-
-
 
     #--------------------------------------------------------------------------
     def nameToTaskList( self, task_name_list ):
@@ -319,22 +297,15 @@ class BuildTool:
         if first_task:
             self.addJob( first_task )
 
-
-
     #--------------------------------------------------------------------------
-
 
     def list( self ):
         self.task_cache.list()
 
 
 
-
-
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
 
 def load_config():
     script_bin_path= os.path.dirname( sys.argv[0] )

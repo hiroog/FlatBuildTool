@@ -139,7 +139,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.findSDKPath()
 
-
         #self.WINDOWS_SDK_DIR= self.findPath( [
         #                    os.path.join( self.X86_PROGRAMFILES, 'Windows Kits\\10' ),
         #                    os.path.join( self.X86_PROGRAMFILES, 'Windows Kits\\8.1' ),
@@ -170,7 +169,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             return  os.path.join( self.MSVC_DIR, 'VC' )
 
     #--------------------------------------------------------------------------
-
 
     def setupBinPath( self ):
 
@@ -319,9 +317,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for lib in self.LINK_LIBS_R:
             self.LINK_FLAGS_R.append( self.getLibName( lib ) )
 
-
-
-
     #--------------------------------------------------------------------------
 
     def getBuildCommand_CC( self, target, src_list ):
@@ -371,7 +366,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         return  command
 
 
-
     def getExeName( self, exe_name ):
         return  exe_name + '.exe'
 
@@ -389,8 +383,5 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def getSupportArchList( self ):
         return  [ 'x64', 'x86' ]
         #return  [ 'x64', 'x86', 'arm', 'arm64' ]
-
-
-
 
 
