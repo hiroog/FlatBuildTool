@@ -285,7 +285,7 @@ class TargetEnvironmentCommon:
 
     def getExePath( self, src_file= None ):
         if self.EXE_NAME_FUNC:
-            return  self.EXE_NAME_FUNC( self, src_file )
+            return  os.path.abspath( self.EXE_NAME_FUNC( self, src_file ) )
         if src_file:
             src_file= self.getExeName( src_file )
         return  self.getOutputPath( self.OUTPUT_EXE_DIR, src_file )
