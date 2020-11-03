@@ -1,4 +1,3 @@
-
 #pragma once
 
 FLB_DLLEXPORT	int	func1( int a );

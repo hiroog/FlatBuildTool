@@ -76,7 +76,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.refresh()
 
-
     #--------------------------------------------------------------------------
 
     def setupCCFlags( self ):
@@ -108,7 +107,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             self.CC_FLAGS_R.append( '-I' + inc )
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
-
     #--------------------------------------------------------------------------
 
     def getBuildCommand_CC( self, target, src_list ):
@@ -132,6 +130,17 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         command.extend( self.LINK_FLAGS_R )
         return  command
 
+    def getBuildCommand_Dll( self, target, src_list ):
+        command= []
+        command.append( self.CMD_CC )
+        command.append( '-shared' )
+        command.append( '-o' )
+        command.append( target )
+        for src in src_list:
+            command.append( src )
+        command.extend( self.LINK_FLAGS_R )
+        return  command
+
     def getBuildCommand_Lib( self, target, src_list ):
         command= []
         command.append( BuildUtility.RemoveFile )
@@ -144,6 +153,4 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             command.append( src )
         command.extend( self.LIB_FLAGS_R )
         return  command
-
-
 

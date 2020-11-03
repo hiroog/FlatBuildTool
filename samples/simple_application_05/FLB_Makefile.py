@@ -10,16 +10,20 @@ app_src_list= [
 
 
 env= tool.createTargetEnvironment()
-env.addCCFlags( [ '-DFLB_DLLEXPORT=__declspec(dllexport)' ] )
+if env.getTargetPlatform() == 'Windwos':
+    env.addCCFlags( [ '-DFLB_DLLEXPORT=__declspec(dllexport)' ] )
+else:
+    env.addCCFlags( [ '-DFLB_DLLEXPORT=' ] )
 env.refresh()
 lib_task= tool.addDllTask( env, 'testlib', lib_src_list )
 
 
 
-
-
 env= tool.createTargetEnvironment()
-env.addCCFlags( [ '-DFLB_DLLEXPORT=__declspec(dllimport)' ] )
+if env.getTargetPlatform() == 'Windwos':
+    env.addCCFlags( [ '-DFLB_DLLEXPORT=__declspec(dllimport)' ] )
+else:
+    env.addCCFlags( [ '-DFLB_DLLEXPORT=' ] )
 env.addLibraries( [ 'testlib' ] )
 env.addLibPaths( [ env.getLibPath() ] )
 env.refresh()
@@ -29,12 +33,11 @@ lib_task.addCompleteTask( exe_task )
 
 
 
-
-
 def copy_func( task ):
     import BuildUtility
     src= os.path.join( task.cwd, 'lib', task.env.getTargetPlatform(), task.env.getTargetArch(), task.env.getConfig(), task.env.getDllName( 'testlib' ) )
     dest= os.path.join( task.cwd, 'obj', task.env.getTargetPlatform(), task.env.getTargetArch(), task.env.getConfig() )
+    print( src, dest )
     BuildUtility.CopyFilesDir( [ src ], dest )
 
 copy_task= tool.addScriptTask( env, 'copy', copy_func )
@@ -43,10 +46,7 @@ exe_task.addCompleteTask( copy_task )
 
 
 
-
 tool.addNamedTask( genv, 'build', [lib_task] )
-
-
 
 
 
@@ -56,6 +56,5 @@ def clean_files( task ):
     BuildUtility.RemoveTree( 'lib' )
 
 tool.addScriptTask( genv, 'clean', clean_files )
-
 
 

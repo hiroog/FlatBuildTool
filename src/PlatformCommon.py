@@ -8,6 +8,8 @@ import  platform
 import  Depend
 from BuildUtility import Log
 
+#------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 class TargetEnvironmentCommon:
 
@@ -190,9 +192,7 @@ class TargetEnvironmentCommon:
     def setDllDir( self, path ):
         self.OUTPUT_DLL_DIR= path
 
-
     #--------------------------------------------------------------------------
-
 
     def addIncludePaths( self, paths ):
         for path in paths:
@@ -242,8 +242,6 @@ class TargetEnvironmentCommon:
             if os.path.exists( cur_path ):
                 return  cur_path
         return  None
-
-
 
     #--------------------------------------------------------------------------
 
@@ -315,22 +313,23 @@ class TargetEnvironmentCommon:
     def getDllName( self, lib_name ):
         return  'lib' + lib_name + '.so'
 
-
-
     #--------------------------------------------------------------------------
 
-    def getBuildCommoand_Link( self, target, src_list ):
+    def getBuildCommand_Link( self, target, src_list ):
         raise   BuildUtility.FLB_Error( 'not implement: getBuildCommand_Link' )
         return  None
 
-    def getBuildCommoand_CC( self, target, src_list ):
+    def getBuildCommand_Dll( self, target, src_list ):
+        raise   BuildUtility.FLB_Error( 'not implement: getBuildCommand_Dll' )
+        return  None
+
+    def getBuildCommand_CC( self, target, src_list ):
         raise   BuildUtility.FLB_Error( 'not implement: getBuildCommand_CC' )
         return  None
 
-    def getBuildCommoand_Lib( self, target, src_list ):
+    def getBuildCommand_Lib( self, target, src_list ):
         raise   BuildUtility.FLB_Error( 'not implement: getBuildCommand_Lib' )
         return  None
-
 
     def createSourceFile( self, file_name ):
         ext= self.splitExt( file_name )
@@ -345,13 +344,6 @@ class TargetEnvironmentCommon:
         if ext in parser:
             return  parser[ ext ]( self, file_name )
         return  Depend.SourceFileC( self, file_name )
-
-
-
-
-    #--------------------------------------------------------------------------
-
-
 
     #--------------------------------------------------------------------------
 
@@ -387,9 +379,7 @@ class TargetEnvironmentCommon:
         self.LIB_FLAGS_R= []
         self.LIB_FLAGS_R.extend( self.LIB_FLAGS )
 
-
     def refresh( self ):
-
         self.setupBinPath()
         self.setupIncludePath()
         self.setupLinkLib()
@@ -400,19 +390,12 @@ class TargetEnvironmentCommon:
         self.setupLibFlags()
 
 
-
-
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
-
 
 class PlatformError( TargetEnvironmentCommon ):
     def isValid( self ):
         return  False
-
-
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------

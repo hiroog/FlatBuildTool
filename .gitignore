@@ -1,12 +1,3 @@
-*.pyc
-*.pyd
-__pycache__
-bin
-library.zip
-.hg
-.hg-backup
-*.swp
-*.swo
 #### Windows
 *.obj
 *.exe
@@ -14,11 +5,17 @@ library.zip
 *.dll
 *.lib
 *.exp
-####
+#### Linux/mac
 *.o
 *.a
-local_config.txt
-*.pyz
-obj
+*.so
+*.dylib
+*_Debug
+*_Release
 ###
+bin
+library.zip
+local_config.txt
+obj
+*.pyz
 .cpu_count_cache.txt

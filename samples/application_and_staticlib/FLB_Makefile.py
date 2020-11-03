@@ -11,7 +11,6 @@ app_task= tool.addSubmoduleTasks( genv, 'build_app', ['sampleapp'], 'build' )
 
 lib_task.addCompleteTask( app_task )
 
-
 tool.addNamedTask( genv, 'build', [lib_task] )
 
 
