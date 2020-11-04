@@ -32,6 +32,7 @@ lib_task.addCompleteTask( exe_task )
 
 
 
+# custom copy task
 def copy_func( task ):
     import BuildUtility
     src= os.path.join( task.cwd, 'lib', task.env.getTargetPlatform(), task.env.getTargetArch(), task.env.getConfig(), task.env.getDllName( 'testlib' ) )
@@ -43,16 +44,17 @@ copy_task.cwd= os.getcwd()
 exe_task.addCompleteTask( copy_task )
 
 
-
 tool.addNamedTask( genv, 'build', [lib_task] )
 
 
 
+# custom clean task
 def clean_files( task ):
     import BuildUtility
-    BuildUtility.RemoveTree( 'obj' )
-    BuildUtility.RemoveTree( 'lib' )
+    BuildUtility.RemoveTree( os.path.join( task.cwd, 'obj' ) )
+    BuildUtility.RemoveTree( os.path.join( task.cwd, 'lib' ) )
 
-tool.addScriptTask( genv, 'clean', clean_files )
+clean_task= tool.addScriptTask( genv, 'clean', clean_files )
+clean_task.cwd= os.path.abspath( os.getcwd() )
 
 

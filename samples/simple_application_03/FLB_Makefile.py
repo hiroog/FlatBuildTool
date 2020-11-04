@@ -91,11 +91,7 @@ tool.addNamedTask( genv, 'build', task_list )
 #------------------------------------------------------------------------------
 # clean task
 #------------------------------------------------------------------------------
-def clean_files( env ):
-    import BuildUtility
-    BuildUtility.RemoveTree( 'obj' )
-
-tool.addScriptTask( genv, 'clean', clean_files )
+tool.addCleanTask( genv, 'clean' )
 
 
 

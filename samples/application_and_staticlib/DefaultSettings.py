@@ -1,29 +1,4 @@
 
-
-
-# additional include path
-genv.addIncludePaths( [ os.path.join( genv.SAMPLELIB_PATH, 'include' ) ] )
-
-# additional default library
-genv.addLibraries( ['samplelib'] )
-
-
-
-
-
-
-#------------------------------------------------------------------------------
-
-def addCleanTask( env, task_name, dir_name= os.getcwd() ):
-    def command( task ):
-        import  BuildUtility
-        BuildUtility.RemoveTree( os.path.join( task.cwd, task.env.OUTPUT_OBJ_DIR ) )
-    clean_task= env.tool.addScriptTask( env, task_name, command )
-    clean_task.cwd= os.getcwd()
-    return  clean_task
-
-tool.addCleanTask= addCleanTask
-
 #------------------------------------------------------------------------------
 
 def addLibTasks( env, task_name, lib_name, src_list, config_list, arch_list ):
@@ -59,6 +34,4 @@ def addExeTasks( env, task_name, exe_name, src_list, config_list, arch_list ):
 tool.addExeTasks= addExeTasks
 
 #------------------------------------------------------------------------------
-
-tool.addCleanTask( genv, 'clean' )
 

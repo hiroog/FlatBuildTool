@@ -19,3 +19,5 @@ task_list.append( tool.addLibTask( env, 'test', src_list ) )
 
 tool.addNamedTask( genv, 'build', task_list )
 
+tool.addCleanTask( genv, 'clean' )
+

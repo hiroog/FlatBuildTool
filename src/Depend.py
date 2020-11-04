@@ -252,7 +252,7 @@ class TaskBase( FileBase ):
 
     def __init__( self, env, target ):
         super().__init__( env, target )
-        self.task_list= []  # 依存task
+        self.task_list= []  # depend task
         self.completed= False
         #self.error= False
         self.lock= threading.Lock()

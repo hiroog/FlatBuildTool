@@ -6,24 +6,32 @@ src_list= [
     'subfile.cpp',
 ]
 
+task_list= []
+
 
 env= tool.createTargetEnvironment()
+
+# --- switch to debug build
+env.setConfig( 'Debug' )
+env.refresh()
+task= tool.addExeTask( env, 'test', src_list )
+task_list.append( task )
+
+
 # --- switch to release build
 env.setConfig( 'Release' )
 env.refresh()
 task= tool.addExeTask( env, 'test', src_list )
+task_list.append( task )
 
 
-tool.addNamedTask( genv, 'build', [task] )
+# --- add build task
+tool.addNamedTask( genv, 'build', task_list )
 
 
 
 # --- add clean task
-def clean_files( env ):
-    import BuildUtility
-    BuildUtility.RemoveTree( 'obj' )
-
-tool.addScriptTask( genv, 'clean', clean_files )
+tool.addCleanTask( genv, 'clean' )
 
 
 

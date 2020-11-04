@@ -70,6 +70,8 @@ class BuildTool:
         self.thread_pool.join()
 
     def getEnv( self, name, default_value= None ):
+        if name in self.global_env.USER_OPTION:
+            return  genv.global_env.USER_OPTION[name]
         #return  BuildUtility.GetEnv( name, default_value )
         if name in os.environ:
             return  os.environ[name]
@@ -191,7 +193,6 @@ class BuildTool:
         return  task
 
 
-
     def addDllTask( self, env, target, src_list ):
         target= env.getDllPath( target )
         abs_target= self.getGenericPath( target )
@@ -227,7 +228,6 @@ class BuildTool:
 #        task= Depend.ExeTask( env, abs_target, [lib_task.target], command, [lib_task] )
 #        self.addTask( abs_target, task )
 #        return  task
-
 
 
     def addSimpleExeTask( self, env, target, src_list ):
@@ -269,6 +269,15 @@ class BuildTool:
         if task_list != []:
             return  self.addNamedTask( env, name, task_list )
         return  None
+
+
+    def addCleanTask( self, env, task_name ):
+        def command( task ):
+            Log.p( 'Clean: '+ os.path.join( task.cwd, task.env.OUTPUT_OBJ_DIR ) )
+            BuildUtility.RemoveTree( os.path.join( task.cwd, task.env.OUTPUT_OBJ_DIR ) )
+        clean_task= self.addScriptTask( env, task_name, command )
+        clean_task.cwd= os.getcwd()
+        return  clean_task
 
     #--------------------------------------------------------------------------
 

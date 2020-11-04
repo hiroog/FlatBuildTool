@@ -8,6 +8,7 @@ import  BuildUtility
 from BuildUtility import Log
 
 
+#   R  *30  Android 11.0
 #   Q  *29  Android 10.0    MIDI
 #   P  *28  Android 9.0
 #   O  *27  Android 8.1     NeuralNetwork(NNAPI)
@@ -85,6 +86,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def setApiLevel( self, level ):
         self.API_LEVEL= level
+
+    def getApiLevel( self ):
+        return  self.API_LEVEL
 
     def getAndroidPlatform( self ):
         return  'Android-' + str(self.API_LEVEL)

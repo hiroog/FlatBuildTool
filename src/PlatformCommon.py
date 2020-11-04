@@ -89,6 +89,16 @@ class TargetEnvironmentCommon:
             return  self.USER_OPTION[ name ]
         return  def_value
 
+    def getEnv( self, name, def_value= None ):
+        if name in self.USER_OPTION:
+            return  self.USER_OPTION[ name ]
+        if name in os.environ:
+            return  os.environ[name]
+        return  def_value
+
+    def setEnv( self, name, value ):
+        self.USER_OPTION[ name ]= value
+
     #--------------------------------------------------------------------------
 
     def clone( self ):

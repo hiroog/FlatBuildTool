@@ -26,6 +26,7 @@ for platform in platform_list:
     env= tool.createTargetEnvironment( platform )
     if not env.isValid():
         continue
+
     env.setApiLevel( 24 )
 
     for target_arch in env.getSupportArchList():
@@ -41,6 +42,8 @@ for platform in platform_list:
 
 
 tool.addNamedTask( genv, 'build', task_list )
+
+tool.addCleanTask( genv, 'clean' )
 
 
 
