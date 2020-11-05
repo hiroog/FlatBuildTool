@@ -87,7 +87,7 @@ def GetFullPath( path ):
 
 
 
-def FindPath( path, env= None  ):
+def FindPath( path, env= None ):
     result= os.path.abspath( path )
     if os.path.exists( result ):
         return  result
@@ -95,9 +95,9 @@ def FindPath( path, env= None  ):
         result= GetEnv( env )
         if result is not None:
             if not os.path.exists( result ):
-                Log.e( 'Not found '+ str(result) )
+                Log.e( 'Not found', result )
             return  result
-    Log.e( 'Path not found ' + str(path) + ' ' + str(env) )
+    Log.e( 'Path not found', path, env )
     return  None
 
 

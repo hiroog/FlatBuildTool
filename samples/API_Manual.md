@@ -310,14 +310,15 @@ tool.pushDir() に対応します。1 つ前のフォルダに戻ります。
 ### FlatBuildTool API - その他
 
 
-#### ```value= tool.findPath( path_name, default_value )```
+#### ```value= tool.findPath( path_name, env_name )```
 
-path_name が存在しているか調べます。存在している場合は path_name をそのまま返します。
-存在していない場合は default_value を返します。
+path_name が存在しているか調べます。存在している場合は path_name をフルパスに変換して返します。
+存在していない場合は環境変数 env_name の値を調べて、パスが存在していればその値を返します。
+見つからない場合は None を返します。
 
 ```python
 # 例
-tool.findPath( '../../flatlib5', genv.getEnv( 'FLATLIB5', 'D:/sdk/flatlib5' ) )
+tool.findPath( '../../flatlib5', 'FLATLIB5' )
 ```
 
 
