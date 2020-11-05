@@ -1,15 +1,25 @@
 # FlatBuildTool
 
-動的依存解析を行うビルドツールです。スレッド並列化に特化しています。
+動的依存解析を行うビルドツールです。
+スレッド並列化に特化しており、可能な限り並列にビルドを行います。
+依存解析とビルドも並列に行われます。
 解析結果をキャッシュしないので、依存が判明した時点で即座に
 ビルドを開始することができます。
 
+ソースコード数が少なくても、Debug と Release、x64 と x86 などの複数のターゲットを
+並列にビルドすることができます。
+ソースコード間で依存解析結果を共有するため、一度にビルドする対象が増えれば増えるほど効率が上がります。
 
-## 使い方 
+Python で書かれており、Makefile 自体も Python コードをそのまま使います。
+大変自由度が高くなっています。
+
+
+
+## 使い方
 
 ```flmake [<options>] [<target_task_name...>]```
 
-target_task_name 何も指定しない場合、デフォルトで "build" Task をビルドします。
+target_task_name 何も指定しない場合、デフォルトで "build" Task を実行します。
 
 |option|詳細|
 |:--|:--|
@@ -18,6 +28,23 @@ target_task_name 何も指定しない場合、デフォルトで "build" Task �
 | --job ```<n>```  | 並列度を指定します。--job 1 で単一スレッドになります。デフォルトはハードウエアスレッド数。  |
 | --opt ```<kname>=<value>```   | 環境変数(ユーザー定義変数)を定義します。   |
 | --debug    | 実行 command の echo や Python Error の詳細を表示します。 |
+
+
+target を複数与えた場合、Dependency Graph に従い可能な限り並列にビルドが行われます。
+下記の例では build_release と buld_debug が並列に走ります。
+
+```
+$ flmake build_release build_debug
+```
+
+もし clean と build のように明確な順序付けが必要な場合は、スペースではなくカンマ区切りで与えてください。
+この場合 clean が完了してから build が走るようになります。
+
+```
+$ flmake clean,build
+```
+
+
 
 
 ## Makefile
@@ -51,7 +78,7 @@ tool.addExeTask( env, 'test', [ 'main.cpp' ] )
 # FLB_Makefile.py
 env= tool.createTargetEnvironment()
 task= tool.addExeTask( env, 'test', [ 'main.cpp' ] )
-tool.addNamedTask( env, 'build', [task] )
+tool.addTask( 'build', task )  # alias
 ```
 
 flmake コマンドを実行するとビルドできます。
@@ -138,9 +165,10 @@ tool.addPlatform( 'LinuxGCC', PlatformLinuxGCC )
 名前で task を検索します。
 
 
-#### ```task= tool.addTask( task_name, task_object )```
+#### ```task= tool.addTask( task_name, task )```
 
 名前をつけて task を登録します。
+既存の Task に別名をつけることもできます。
 
 
 #### ```task= tool.removeTask( task_name )```
@@ -149,34 +177,59 @@ tool.addPlatform( 'LinuxGCC', PlatformLinuxGCC )
 
 
 
-#### ```task= tool.addLibTask( env, task_name, [src_list..] )```
+#### ```task= tool.addLibTask( env, target_name, [src_file..], [depend_task..] )```
 
 静的 Link ライブラリをビルドするためのタスクを登録します。
+depend_task は省略できます。
 
 
-#### ```task= tool.addExeTask( env, task_name, [src_list..] )```
+#### ```task= tool.addExeTask( env, target_name, [src_file..], [depend_task..] )```
 
 実行ファイルをビルドするためのタスクを登録します。
+depend_task は省略できます。
 
 
-#### ```task= tool.addDllTask( env, task_name, [src_list..] )```
+#### ```task= tool.addDllTask( env, target_name, [src_file..], [depend_task..] )```
 
 動的 Link ライブラリ/共有ライブラリをビルドするためのタスクを登録します。
+depend_task は省略できます。
 
 
-#### ```task= tool.addNamedTask( env, task_name, [task_list..] )```
+#### ```task= tool.addGroupTask( env, task_name, [depend_task..] )```
 
-他の Task に別の名前をつけて新しい Task として登録します。
-複数の Task をグループ化できますが依存関係はないものとみなします。
-可能な限り並列にビルドを行います。
+複数の Task をグループ化して新しい Task として登録します。
+登録した Task 同士には依存関係はないものとみなし、可能な限り並列に実行を行います。
 
-
-#### ```task= tool.addScriptTask( env, task_name, python_func )```
-
-任意の Python Code を実行します。
+```python
+tool.addGroupTask( genv, 'build', [task1, task2] )
+```
 
 
-#### ```task= tool.addCleanTask( env, task_name )```
+#### ```task= tool.addScriptTask( env, task_name, python_func, [depend_task..] )```
+
+任意の Python 関数 'python_func' を実行します。
+python_func には引数として自分自身の task が渡ります。
+
+関数にパラメータを渡したい場合は task Object に追加してください。
+
+```python
+def print_func( task ):
+    print( task.message )
+
+task= tool.addScriptTask( genv, 'build', print_func )
+task.message= 'print message'
+```
+
+depend_task は省略可能です。
+depend_task が与えられた場合は depend_task の完了を待ってから python_func を実行します。
+python_func が None の場合 addGroupTask() と同じものになります。
+
+```python
+tool.addScriptTask( genv, 'build', None, [task1, task2] ) # same as addGroupTask()
+```
+
+
+#### ```task= tool.addCleanTask( env, task_name, [depend_task..] )```
 
 生成物を消去するための task を登録します。
 この task を実行すると obj ディレクトリを消去します。
@@ -193,7 +246,7 @@ Makefile の include に相当します。
 共通で参照するパラメータや関数などを定義しておくことができます。
 
 
-#### ```tool.execSubmoduleScripts( script_name, [ submodule_folder... ] )```
+#### ```tool.execSubmoduleScripts( script_name, [submodule_list...] )```
 
 別のフォルダにある Makefile を読み込んで task を登録します。
 execScript() と違い、task 名を階層化するので同名の task があっても区別できるようになります。
@@ -210,10 +263,13 @@ tool.execSubmoduleScripts( 'FLB_Makefile.py', [ 'subfolder1', 'subfolder2' ] )
 'subfolder1/build'、'subfolder2/build' の名前で実行できるようになります。
 
 
-#### ```task= tool.addSubmoduleTasks( env, task_name, [ submodule_folder... ] )```
+#### ```task= tool.addSubmoduleTasks( env, task_name, [submodule_list...], target_name, [depend_task..] )```
 
 階層以下の同名の task をグループ化します。
+target_name を省略した場合は task_name と同じものとみなします。
+
 例えば下記の例では、'subfolder1/build', 'subfolder2/build' の 2つの task をまとめて 'build' というタスク名をつけます。
+
 
 ```python
 # FLB_Makefile.py
@@ -250,11 +306,17 @@ tool.findPath( '../../flatlib5', genv.getEnv( 'FLATLIB5', 'D:/sdk/flatlib5' ) )
 ```
 
 
+#### ```tool.list()```
+
+Task 一覧を表示します。
+flmake --list と同じです。
+
+
 ### FlatBuildTool API - メンバ変数
 
 #### ```tool.global_env```
 
-genv と同じです。 
+genv と同じです。
 
 
 
@@ -414,10 +476,10 @@ for config in [ 'Debug', 'Release' ]:
         for libpath in libpath_list:
     	    local_env.addLibPaths( [os.path.join( libpath, 'lib', arch, config )] )
         local_env.refresh()
-        task= env.tool.addExeTask( local_env, exe_name, src_list )
+        task= tool.addExeTask( local_env, exe_name, src_list )
         task_list.append( task )
-# build という task 名でまとめる
-task= env.tool.addNamedTask( env, 'build', task_list )
+# build という task 名でグループ化する
+task= tool.addGroupTask( env, 'build', task_list )
 ```
 
 
@@ -462,6 +524,11 @@ env.EXE_NAME_FUNC= makeExeName
 * ./test_x64_Debug.exe
 * ./test_x64_Release.exe
 
+
+#### ```env.getOutputPath( path )```
+
+getTargetPlatform(), getTargetArch(), getConfig() をつなげたパスを返します。
+例えば env.getOutputPath( 'lib' ) の場合「lib/Windows/x64/Debug」をフルパスで返します。
 
 
 ### Platform Environment API - Platform 固有の名前
@@ -521,13 +588,21 @@ OS で設定した環境変数だけでなく、
 FlatBuildTool のインスタンスにアクセスします。
 
 
+### Task API - Dependency Graph
+
+#### ```task.addDependTasks( [task..] )```
+
+#### ```task.onCompleteTask( task )```
+
+完了時に走る Task を追加登録します。
+同期バリアの挿入に相当します。
+
 
 ### Task API - メンバ変数
 
 #### ```task.env```
 
 Task を生成したときのビルド環境にアクセスします。
-
 
 
 
@@ -560,5 +635,174 @@ Makefile 内で定義する場合は env.setEnv() を使用します。
 genv.setEnv( 'VC', '2017' )
 ```
 
+
+
+## Build Graph
+
+FL_Makefile.py に記述する Python code は Build Graph の構築を行っています。
+各 Task は明確な依存が存在しない限り並列に実行しようとします。
+
+例えば下記のように Task A が A1, A2 に依存している場合、A1, A2 両方が完了してから A をビルドします。
+
+```
+A1   A2
+|     |
++--+--+
+   |
+   v
+   A
+```
+
+このとき A1, A2 の間には依存がないので、A1, A2 は同時にビルドが行われます。
+
+同じように B1, B2 に依存する Task B が存在しているものとします。
+
+```
+A1   A2   B1   B2
+|     |   |     |
++--+--+   +--+--+
+   |         |
+   v         v
+   A         B
+```
+
+B のビルドに A が必要な場合、下記のように依存を追加することができます。
+
+```
+A1   A2
+|     |
++--+--+
+   |
+   v
+   A   B1  B2
+   |   |   |
+   +---+---+
+       |
+       v
+       B
+```
+
+B のビルド全体が、A のビルドが完全に終わるのを待っているわけではない点に注意してください。
+
+A のビルドそのものは B よりも前に行われますが、
+A, B1, B2 自体は並列にビルドが行われます。
+つまり A1, A2, B1, B2 そのものは同時にビルドが走る可能性があります。
+
+
+特に Group 化や Submodule などで Task の依存階層が深くなっていると、この仕組が問題になることがあります。
+例えば下記のように static library lib1, lib2 のビルドを待ってから application app のビルドを行いたい場合を考えます。
+
+```python
+lib_task1= tool.addLibTask( env, 'lib1', src_list_lib1 )
+lib_task2= tool.addLibTask( env, 'lib2', src_list_lib2 )
+lib_task= tool.addGroupTask( env, 'build_lib', [lib_task1, lib_task2] )
+
+app_task= tool.addExeTask( env, 'app', src_list_app )
+tool.addGroupTask( env, 'build_app', [app_task], [lib_task] ) # <== 依存
+```
+
+上のグラフは下記のようになります。S0～S5 はソースコードのコンパイルです。
+
+```
+S0    S1  S2    S3     S4    S5
+|     |   |     |      |     |
++--+--+   +--+--+      +--+--+
+   |         |            |
+  lib1      lib2         app(link)
+   |         |            |
+   +----+----+            |
+        |                 |
+    build_lib             |
+        |                 |
+        +--------+--------+
+             build_app
+```
+
+build_app は build_lib に依存していますが、build_lib と app は同時にビルドが行われるため、
+結局全てのビルドが並列に走ることになります。
+つまり lib1, lib2 のビルドが終わる前に app の link が走る可能性があります。
+
+正しくは build_app ではなく app (link) が build_lib に依存しているからです。
+
+下記のように app の Link 部分に build_lib の依存を接続すれば意図したとおりになります。
+
+```python
+lib_task1= tool.addLibTask( env, 'lib1', src_list_lib1 )
+lib_task2= tool.addLibTask( env, 'lib2', src_list_lib2 )
+lib_task= tool.addGroupTask( env, 'build_lib', [lib_task1, lib_task2] )
+
+app_task= tool.addExeTask( env, 'app', src_list_app, [lib_task] ) # <== 依存
+tool.addGroupTask( env, 'build_app', [app_task] )
+```
+
+```
+S0    S1  S2    S3
+|     |   |     |
++--+--+   +--+--+
+   |         |
+  lib1      lib2
+   |         |
+   +----+----+
+        |
+     build_lib      S4    S5
+        |           |     |
+        +--------+--+-----+
+                 |
+                app(link)
+                 |
+              build_app
+```
+これで lib1, lib2 及び S4, S5 のコンパイルが終わってから app の Link が走るようになります。
+
+ただし Group 化や Submodule などで Task の依存階層が深くなると、途中に依存 Task を挿入するのが難しくなります。
+
+どうしても明確な完了待ち必要になった場合は、依存 Task ではなく完了 Task を追加することで順序付けすることができます。
+完了タスクは下記のように同期バリアが挿入されます。
+
+```python
+lib_task1= tool.addLibTask( env, 'lib1', src_list_lib1 )
+lib_task2= tool.addLibTask( env, 'lib2', src_list_lib2 )
+lib_task= tool.addGroupTask( env, 'build_lib', [lib_task1, lib_task2] )
+
+app_task= tool.addExeTask( env, 'app', src_list_app )
+lib_task.onCompleteTask( app_task )  # <== 完了タスク
+
+tool.addGroupTask( env, 'build_app', [lib_task] ) # <== 呼び出すのは lib の方
+```
+
+```
+S0    S1  S2    S3
+|     |   |     |
++--+--+   +--+--+
+   |         |
+  lib1      lib2
+   |         |
+   +----+----+
+        |
+     build_lib
+        |
+  ============================== barrier
+        |           S4    S5
+        |           |     |
+        |           +--+--+
+        |              |
+        |          progapp(link)
+        |              |
+        +------->  build_app
+```
+
+ただしこの方法では、本来同時にビルドできるはずの S0～S3 と S4, S5 が同時にビルドが行われません。
+S0～S3 と lib1/lib2 のビルドを待ってから S4, S5 のコンパイルも走るので並列度が下がります。
+簡単に順序付けできる反面、ビルド効率が落ちるので注意してください。
+効率を優先する場合は正しい Dependency Graph を作成することをおすすめします。
+
+* sampels/application_and_staticlib は submodule を使いつつ最小限の依存を定義しています。
+* sampels/application_and_dynamiclib は file copy に完了タスクを使っています。
+
+
+## Bug
+
+* 依存解析の早期打ち切りのため、メモリキャッシュ化されている依存ファイルの最終更新時間が必ずしも正確にならない可能性があります。
+* 動的解析のため、プロジェクト規模が大きい場合効率が落ちる可能性があります。
 
 

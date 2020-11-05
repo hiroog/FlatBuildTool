@@ -22,8 +22,7 @@ env.addIncludePaths( [ os.path.join( genv.SAMPLELIB_PATH, 'include' ) ] )
 env.addLibraries( ['samplelib'] )
 env.refresh()
 
-all_task= tool.addExeTasks( env, 'all', EXE_NAME, src_list, [ 'Debug', 'Release' ], env.getSupportArchList() )
-tool.addNamedTask( env, 'build', [ all_task ] )
+tool.addExeTasks( env, 'build', EXE_NAME, src_list, [ 'Debug', 'Release' ], env.getSupportArchList() )
 
 
 tool.addCleanTask( env, 'clean' )

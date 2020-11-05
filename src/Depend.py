@@ -86,7 +86,6 @@ class SourceFileCache:
 
 
 
-
 class TaskCache:
 
     def __init__( self, tool ):
@@ -95,26 +94,19 @@ class TaskCache:
         self.prefix= []
         self.prefix_name= None
 
-
     def findTask( self, task_name ):
-        #l_name= self.tool.getGenericPath( task_name )
-        #l_name= task_name
         l_name= self.getPrefix( task_name )
         if l_name in self.cache:
             return  self.cache[l_name]
         return  None
 
-
     def addTask( self, task_name, task ):
-        #l_name= self.tool.getGenericPath( task_name )
-        #l_name= task_name
         l_name= self.getPrefix( task_name )
+        task.cache_name= l_name
         self.cache[l_name]= task
         return  task
 
-
     def removeTask( self, task_name ):
-        #l_name= self.tool.getGenericPath( task_name )
         l_name= task_name
         if l_name in self.cache:
             return  self.cache.pop( l_name )
@@ -146,16 +138,6 @@ class TaskCache:
         if self.prefix_name is None:
             return  name
         return  self.prefix_name + name
-        #base= None
-        #for pre in self.prefix:
-        #    if base is not None:
-        #        base+= '/' + pre
-        #    else:
-        #        base= pre
-        #if base is not None:
-        #    return   base + '/' + name
-        #return  name
-
 
     def dump( self ):
         Log.p( '-------------------' )
@@ -170,9 +152,8 @@ class TaskCache:
             for dep in task.task_list:
                 Log.p( '   dep %s' % str(dep) )
             for comp in task.callback_task:
-                Log.p( '   cb  %s' % str(comp) )
+                Log.p( '   oc  %s' % str(comp) )
         Log.p( '-------------------' )
-
 
     def list( self ):
         for l_name in self.cache:
@@ -182,17 +163,13 @@ class TaskCache:
             #if getattr( task, 'command', None ):
             #    Log.p( '   cmd %s' % task.command )
             for dep in task.task_list:
-                Log.p( '      --> %s' % str(dep) )
-            #for comp in task.callback_task:
-            #    Log.p( '   cb  %s' % str(comp) )
-
-
-
+                Log.p( '      --> ', dep.cache_name )
+            for comp in task.callback_task:
+                Log.p( '      OC> ', comp.cache_name )
 
 
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
 
 class FileBase:
 
@@ -200,8 +177,7 @@ class FileBase:
         self.tool= env.tool
         self.env= env
         self.target= target
-        self.src_list= []   # 依存file
-
+        self.src_list= []   # dependency
 
     # need update?
     def isBuild( self, context, target_time ):
@@ -210,7 +186,7 @@ class FileBase:
                 raise BuildUtility.FLB_Error( 'internal error: "%s" not found' % src_file )
             src_time= self.tool.timestamp_cache.getTimeStamp( src_file )
             if src_time > target_time:
-                return  'depend "%s"' % src_file
+                return  'updated "%s"' % src_file
         for src_file in self.src_list:
             if src_file in context:
                 continue
@@ -222,9 +198,6 @@ class FileBase:
             if result != None:
                 return  result
         return  None
-
-
-
 
 
 class ExeCompleteJob:
@@ -239,7 +212,7 @@ class ExeCompleteJob:
         return  result
 
 #
-#       depend.run -- callback task.signal ret result
+#       task.run() -- callback task.signal ret result
 #          ^                     |          ^
 #          |                     v          |
 # task.run + ret 0               +----------+
@@ -247,12 +220,11 @@ class ExeCompleteJob:
 #
 
 
-
 class TaskBase( FileBase ):
 
     def __init__( self, env, target ):
         super().__init__( env, target )
-        self.task_list= []  # depend task
+        self.task_list= []  # dependency
         self.completed= False
         #self.error= False
         self.lock= threading.Lock()
@@ -272,7 +244,7 @@ class TaskBase( FileBase ):
     def addDependTasks( self, task_list ):
         self.task_list.extend( task_list )
 
-    def addCompleteTask( self, task ):
+    def onCompleteTask( self, task ):
         self.callback_task.append( task )
 
     def completeTask( self, result_code ):
@@ -305,8 +277,7 @@ class TaskBase( FileBase ):
             return  self.preBuild()
         return  0
 
-
-    def build( self ):
+    def build( self, message ):
         return  self.completeTask( 0 )
 
     def dependTask( self ):
@@ -319,11 +290,10 @@ class TaskBase( FileBase ):
                 for task in self.task_list:
                     if not task.isCompleted():
                         Log.d( ' depend -> ' + task.target )
-                        task.addCompleteTask( self )
+                        task.onCompleteTask( self )
                         self.tool.thread_pool.addJob( task )
                 return  0
         return  self.preBuild()
-
 
     def run( self ):
         Log.d( 'RunTask: ' + self.target )
@@ -331,11 +301,10 @@ class TaskBase( FileBase ):
             return  self.signal()
         return  self.dependTask()
 
-
     def preBuild( self ):
         Log.d( 'Task prebuild= ' + self.target )
         if not os.path.exists( self.target ):
-            return  self.build( 'new "%s"' % self.target )
+            return  self.build( 'not exists "%s"' % self.target )
 
         dest_time= self.tool.timestamp_cache.getTimeStamp( self.target )
         #print( 'TargetTime =' + str(dest_time) )
@@ -344,12 +313,8 @@ class TaskBase( FileBase ):
             return  self.build( result )
         return  self.completeTask( 0 )
 
-
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
-
 
 class SourceFileC( FileBase ):
 
@@ -360,8 +325,6 @@ class SourceFileC( FileBase ):
         super().__init__( env, target )
         self.parsed= False
         self.parseInclude()
-
-
 
     def parseInclude( self ):
         if self.parsed:
@@ -385,12 +348,8 @@ class SourceFileC( FileBase ):
         self.parsed= True
 
 
-
-
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
 
 class ObjTask( TaskBase ):
 
@@ -412,28 +371,15 @@ class ObjTask( TaskBase ):
 
     def isBuild( self, context, target_time ):
         if not os.path.exists( self.target ):
-            return  'new "%s"' % self.target
+            return  'not exists "%s"' % self.target
         for src in self.src_list:
             if not os.path.exists( src ):
                 raise BuildUtility.FLB_Error( 'source file "%s" not found' % src )
         return  super().isBuild( context, target_time )
 
 
-#    def run( self ):
-#        if not os.path.exists( self.target ):
-#            return  self.build( 'new "%s"' % self.target )
-#
-#        dest_time= self.tool.timestamp_cache.getTimeStamp( self.target )
-#        result= self.isBuild( {}, dest_time )
-#        if result != None:
-#            return  self.build( result )
-#        #self.setCompleted( True )
-#        return  self.completeTask( 0 )
-
-
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
-
 
 def commandSplitter( command ):
     if ';;' in command:
@@ -458,7 +404,6 @@ class ExeTask( TaskBase ):
         self.command= command
         self.task_list= task_list
 
-
     def build( self, message ):
         Log.p( 'ExeTask: ' + self.target )
         Log.p( '  <== ' + message )
@@ -480,7 +425,6 @@ class ExeTask( TaskBase ):
             Log.p( '  Ok ' + self.target )
         return  self.completeTask( result_code )
 
-
     def isBuild( self, context, target_time ):
         #print( 'Exe isBuild ' + str(target_time) )
         for src_file in self.src_list:
@@ -489,15 +433,12 @@ class ExeTask( TaskBase ):
             src_time= self.tool.timestamp_cache.getTimeStamp( src_file )
             #print( src_file + ' :  ' + str(src_time) + ' ==  ' + str(target_time) )
             if src_time > target_time:
-                return  'depend "%s"' % src_file
+                return  'updated "%s"' % src_file
         return  None
 
 
 
-
-
 class ExeTaskFromSrc( TaskBase ):
-
 
     def __init__( self, env, target, src_list, command ):
         super().__init__( env, target )
@@ -521,7 +462,7 @@ class ExeTaskFromSrc( TaskBase ):
                 raise BuildUtility.FLB_Error( 'internal error: "%s" not found' % src_file )
             src_time= self.tool.timestamp_cache.getTimeStamp( src_file )
             if src_time > target_time:
-                return  'depend "%s"' % src_file
+                return  'updated "%s"' % src_file
         return  None
 
 
@@ -575,7 +516,7 @@ class LibTask( TaskBase ):
             src_time= self.tool.timestamp_cache.getTimeStamp( src_file )
             #print( src_file + ' :  ' + str(src_time) + ' ==  ' + str(target_time) )
             if src_time > target_time:
-                return  'depend "%s"' % src_file
+                return  'updated "%s"' % src_file
         return  None
 
 
@@ -583,33 +524,28 @@ class LibTask( TaskBase ):
 #------------------------------------------------------------------------------
 #------------------------------------------------------------------------------
 
-
-class NamedTask( TaskBase ):
+class GroupTask( TaskBase ):
 
     def __init__( self, env, target, task_list ):
         super().__init__( env, target )
         self.task_list= task_list
 
     def preBuild( self ):
-        Log.d( 'Named task "%s" completed' % self.target )
+        Log.d( 'Group task "%s" completed' % self.target )
         return  self.completeTask( 0 )
 
 
 
 class ScriptTask( TaskBase ):
 
-    def __init__( self, env, target, script, src_list, task_list ):
+    def __init__( self, env, target, script, task_list ):
         super().__init__( env, target )
-        self.src_list= src_list
         self.task_list= task_list
         self.script= script
-        self.args= None
 
     def preBuild( self ):
-        if self.args is None:
+        if self.script:
             self.script( self )
-        else:
-            self.script( *self.args )
         Log.d( 'Script task "%s" completed' % self.target )
         return  self.completeTask( 0 )
 
@@ -619,26 +555,13 @@ class SequentialTask( TaskBase ):
 
     def __init__( self, env, target, task_list ):
         super().__init__( env, target )
-        self.task_list= [ task_list.pop(0) ]
-        self.sequential_list= task_list
-
-    def signal( self, result_code, task ):
-        if result_code != 0:
-            return  result_code
-        if len( self.sequential_list ) == 0:
-            Log.d( 'Sequential task "%s" completed' % self.target )
-            return  self.completeTask( 0 )
-        task= self.sequential_list.pop(0)
-        if not task.isCompleted():
-            task.addCompleteTask( self )
-            self.tool.addJob( task )
-            return  0
-        return  self.completeTask( 0 )
+        for i in range(len(task_list)-1):
+            task_list[i].onCompleteTask( task_list[i+1] )
+        self.task_list= [task_list[0]]
 
     def preBuild( self ):
         Log.d( 'Sequential task "%s" completed' % self.target )
         return  self.completeTask( 0 )
-
 
 
 

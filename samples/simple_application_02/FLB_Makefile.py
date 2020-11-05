@@ -1,5 +1,4 @@
-#  $ flmake clean
-#  $ flmake
+# Debug/Release parallel bulid
 
 src_list= [
     'main.cpp',
@@ -26,8 +25,7 @@ task_list.append( task )
 
 
 # --- add build task
-tool.addNamedTask( genv, 'build', task_list )
-
+tool.addGroupTask( genv, 'build', task_list )
 
 
 # --- add clean task

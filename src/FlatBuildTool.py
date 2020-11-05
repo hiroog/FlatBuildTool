@@ -145,14 +145,15 @@ class BuildTool:
         return  task
 
 
-    def addExeTask( self, env, target, src_list ):
+    def addExeTask( self, env, target, src_list, task_list= None ):
         target= env.getExePath( target )
         abs_target= self.getGenericPath( target )
         task= self.findTask( abs_target )
         if task != None:
             return  task
 
-        task_list= []
+        if task_list is None:
+            task_list= []
         obj_list= []
         for src in src_list:
             obj_file= env.getObjPath( src )
@@ -169,14 +170,15 @@ class BuildTool:
         return  task
 
 
-    def addLibTask( self, env, target, src_list ):
+    def addLibTask( self, env, target, src_list, task_list= None ):
         target= env.getLibPath( target )
         abs_target= self.getGenericPath( target )
         task= self.findTask( abs_target )
         if task != None:
             return  task
 
-        task_list= []
+        if task_list is None:
+            task_list= []
         obj_list= []
         for src in src_list:
             obj_file= env.getObjPath( src )
@@ -193,14 +195,15 @@ class BuildTool:
         return  task
 
 
-    def addDllTask( self, env, target, src_list ):
+    def addDllTask( self, env, target, src_list, task_list= None ):
         target= env.getDllPath( target )
         abs_target= self.getGenericPath( target )
         task= self.findTask( abs_target )
         if task != None:
             return  task
 
-        task_list= []
+        if task_list is None:
+            task_list= []
         obj_list= []
         for src in src_list:
             obj_file= env.getObjPath( src )
@@ -243,23 +246,28 @@ class BuildTool:
         return  task
 
 
-    def addNamedTask( self, env, target, task_list, *mode ):
+    def addGroupTask( self, env, target, task_list ):
         task= self.findTask( target )
         if task != None:
             raise BuildUtility.FLB_Error( 'task "%s" already exists' % target )
             return  task
-        return  self.addTask( target, Depend.NamedTask( env, target, task_list ) )
+        return  self.addTask( target, Depend.GroupTask( env, target, task_list ) )
 
+    def addNamedTask( self, env, target, task_list ):
+        return  self.addGroupTask( env, target, task_list )
 
-    def addScriptTask( self, env, target, script, src_list= [], task_list= [] ):
+    def addScriptTask( self, env, target, script, task_list= None ):
         task= self.findTask( target )
         if task != None:
             raise BuildUtility.FLB_Error( 'task "%s" already exists' % target )
             return  task
-        return  self.addTask( target, Depend.ScriptTask( env, target, script, src_list, task_list ) )
+        if task_list is None:
+            task_list= []
+        return  self.addTask( target, Depend.ScriptTask( env, target, script, task_list ) )
 
-    def addSubmoduleTasks( self, env, name, module_list, target_name= None ):
-        task_list= []
+    def addSubmoduleTasks( self, env, name, module_list, target_name= None, task_list= None ):
+        if task_list is None:
+            task_list= []
         if target_name is None:
             target_name= name
         for dir in module_list:
@@ -267,17 +275,20 @@ class BuildTool:
             if task is not None:
                 task_list.append( task )
         if task_list != []:
-            return  self.addNamedTask( env, name, task_list )
+            return  self.addGroupTask( env, name, task_list )
         return  None
 
 
-    def addCleanTask( self, env, task_name ):
+    def addCleanTask( self, env, task_name, task_list= None ):
         def command( task ):
             Log.p( 'Clean: '+ os.path.join( task.cwd, task.env.OUTPUT_OBJ_DIR ) )
             BuildUtility.RemoveTree( os.path.join( task.cwd, task.env.OUTPUT_OBJ_DIR ) )
-        clean_task= self.addScriptTask( env, task_name, command )
+        clean_task= self.addScriptTask( env, task_name, command, task_list )
         clean_task.cwd= os.getcwd()
         return  clean_task
+
+    def addSequentialTask( self, env, target, task_list ):
+        return  self.addTask( target, Depend.SequentialTask( env, target, task_list ) )
 
     #--------------------------------------------------------------------------
 
@@ -295,16 +306,12 @@ class BuildTool:
         return  task_list
 
     def runSequentialTask( self, task_list ):
-        prev_task= None
-        first_task= None
-        for task in task_list:
-            if first_task == None:
-                first_task= task
-            if prev_task:
-                prev_task.addCompleteTask( task )
-            prev_task= task
-        if first_task:
-            self.addJob( first_task )
+        task_count= len(task_list)
+        if task_count >= 2:
+            for i in range(task_count-1):
+                task_list[i].onCompleteTask( task_list[i+1] )
+        if task_count >= 1:
+            self.addJob( task_list[0] )
 
     #--------------------------------------------------------------------------
 
@@ -333,15 +340,14 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.18 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.20 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --debug' )
     Log.p( '  --dump' )
     Log.p( '  --job <thread>     default : system thread count' )
     Log.p( '  --list             display all targets' )
-#    Log.p( '  --env <platform>' )
-    Log.p( '  --opt <prop_name>=<value>' )
+    Log.p( '  --opt <env_name>=<value>' )
     Log.p( 'parallel action: target1 target2 ...' )
     Log.p( 'sequential action: target1,target2,...' )
     sys.exit( 0 )

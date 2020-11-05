@@ -11,14 +11,17 @@ LIB_NAME= 'samplelib'
 
 env= tool.createTargetEnvironment()
 env.setLibDir( 'lib' )
-env.setDllDir( 'lib' )
 env.addCCFlags( [ '-DENABLE_SAMPLE_LIB=1' ] )
 env.addIncludePaths( [ os.path.join( genv.SAMPLELIB_PATH, 'include' ) ] )
 env.refresh()
 
-all_task= tool.addLibTasks( env, 'all', LIB_NAME, src_list, [ 'Debug', 'Release' ], env.getSupportArchList() )
-tool.addNamedTask( env, 'build', [ all_task ] )
+tool.addLibTasks( env, 'build', LIB_NAME, src_list, [ 'Debug', 'Release' ], env.getSupportArchList() )
 
 
-tool.addCleanTask( env, 'clean' )
+def clean_files( task ):
+    import BuildUtility
+    BuildUtility.RemoveTree( os.path.join( task.cwd, 'obj' ) )
+    BuildUtility.RemoveTree( os.path.join( task.cwd, 'lib' ) )
 
+clean_task= tool.addScriptTask( genv, 'clean', clean_files )
+clean_task.cwd= os.path.abspath( os.getcwd() )

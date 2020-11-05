@@ -5,5 +5,3 @@ int	main()
 	printf( "FlatBuildTool sample\n" );
 	return	0;
 }
-
-

@@ -12,17 +12,17 @@ class Log:
     DebugLevel= 0
 
     @staticmethod
-    def d( message ):
+    def d( *message ):
         if Log.DebugLevel >= 1:
-            print( message )
+            print( *message )
 
     @staticmethod
-    def e( message ):
-        print( 'ERROR: ' + message )
+    def e( *message ):
+        print( 'ERROR:', *message )
 
     @staticmethod
-    def p( message ):
-        print( message )
+    def p( *message ):
+        print( *message )
 
 
 

@@ -1,4 +1,4 @@
-# build all architectures and configuration
+# build all architectures and configurations
 
 src_list= [
     'function.cpp',
@@ -18,7 +18,6 @@ config_list= [
 
 LIB_NAME= 'test'
 task_list= []
-
 
 
 for platform in platform_list:
@@ -41,9 +40,8 @@ for platform in platform_list:
 
 
 
-tool.addNamedTask( genv, 'build', task_list )
+tool.addGroupTask( genv, 'build', task_list )
 
 tool.addCleanTask( genv, 'clean' )
-
 
 

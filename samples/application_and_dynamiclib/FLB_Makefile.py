@@ -9,6 +9,9 @@ app_src_list= [
 ]
 
 
+#------------------------------------------------------------------------------
+# dll
+#------------------------------------------------------------------------------
 env= tool.createTargetEnvironment()
 if env.getTargetPlatform() == 'Windows':
     env.addCCFlags( [ '-DFLB_DLLEXPORT=__declspec(dllexport)' ] )
@@ -19,6 +22,9 @@ lib_task= tool.addDllTask( env, 'testlib', lib_src_list )
 
 
 
+#------------------------------------------------------------------------------
+# app
+#------------------------------------------------------------------------------
 env= tool.createTargetEnvironment()
 if env.getTargetPlatform() == 'Windows':
     env.addCCFlags( [ '-DFLB_DLLEXPORT=__declspec(dllimport)' ] )
@@ -27,12 +33,13 @@ else:
 env.addLibraries( [ 'testlib' ] )
 env.addLibPaths( [ env.getLibPath() ] )
 env.refresh()
-exe_task= tool.addExeTask( env, 'test', app_src_list )
-lib_task.addCompleteTask( exe_task )
+exe_task= tool.addExeTask( env, 'test', app_src_list, [lib_task] )
 
 
 
-# custom copy task
+#------------------------------------------------------------------------------
+# file copy
+#------------------------------------------------------------------------------
 def copy_func( task ):
     import BuildUtility
     src= os.path.join( task.cwd, 'lib', task.env.getTargetPlatform(), task.env.getTargetArch(), task.env.getConfig(), task.env.getDllName( 'testlib' ) )
@@ -41,14 +48,20 @@ def copy_func( task ):
 
 copy_task= tool.addScriptTask( env, 'copy', copy_func )
 copy_task.cwd= os.getcwd()
-exe_task.addCompleteTask( copy_task )
-
-
-tool.addNamedTask( genv, 'build', [lib_task] )
+exe_task.onCompleteTask( copy_task )
 
 
 
+#------------------------------------------------------------------------------
+# build task
+#------------------------------------------------------------------------------
+tool.addTask( 'build', exe_task )
+
+
+
+#------------------------------------------------------------------------------
 # custom clean task
+#------------------------------------------------------------------------------
 def clean_files( task ):
     import BuildUtility
     BuildUtility.RemoveTree( os.path.join( task.cwd, 'obj' ) )

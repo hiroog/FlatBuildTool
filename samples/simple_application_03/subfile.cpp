@@ -1,7 +1,4 @@
-
 const char*	GetText()
 {
-	return	"FlatBuildTool sample2";
+	return	"FlatBuildTool sample3";
 }
-
-
