@@ -122,7 +122,6 @@ class BuildTool:
     #--------------------------------------------------------------------------
 
     def addObjTask( self, env, target, src_list ):
-        #abs_target= os.path.abspath( target )
         abs_target= self.getGenericPath( target )
         task= self.findTask( abs_target )
         if task != None:
@@ -131,22 +130,22 @@ class BuildTool:
         abs_src_list= []
         task_list= []
         for src in src_list:
-            #abs_src= os.path.abspath( src )
             abs_src= self.getGenericPath( src )
             abs_src_list.append( abs_src )
             task= self.findTask( abs_src )
             if task != None:
                 task_list.append( task )
 
-        command= env.getBuildCommand_CC( target, abs_src_list )
+        command= env.getBuildCommand_CC( abs_target, abs_src_list )
         task= Depend.ObjTask( env, abs_target, abs_src_list, command )
         task.addDependTasks( task_list )
         self.addTask( abs_target, task )
         return  task
 
 
-    def addExeTask( self, env, target, src_list, task_list= None ):
-        target= env.getExePath( target )
+    def addExeTask( self, env, name= None, src_list= None, task_list= None, target=None ):
+        if target is None:
+            target= env.getExePath( name )
         abs_target= self.getGenericPath( target )
         task= self.findTask( abs_target )
         if task != None:
@@ -163,15 +162,16 @@ class BuildTool:
                 task= self.addObjTask( env, obj_file, [src] )
             task_list.append( task )
 
-        command= env.getBuildCommand_Link( target, obj_list )
+        command= env.getBuildCommand_Link( abs_target, obj_list )
 
         task= Depend.ExeTask( env, abs_target, obj_list, command, task_list )
         self.addTask( abs_target, task )
         return  task
 
 
-    def addLibTask( self, env, target, src_list, task_list= None ):
-        target= env.getLibPath( target )
+    def addLibTask( self, env, name, src_list, task_list= None, target= None ):
+        if target is None:
+            target= env.getLibPath( name )
         abs_target= self.getGenericPath( target )
         task= self.findTask( abs_target )
         if task != None:
@@ -188,15 +188,16 @@ class BuildTool:
                 task= self.addObjTask( env, obj_file, [src] )
             task_list.append( task )
 
-        command= env.getBuildCommand_Lib( target, obj_list )
+        command= env.getBuildCommand_Lib( abs_target, obj_list )
 
         task= Depend.ExeTask( env, abs_target, obj_list, command, task_list )
         self.addTask( abs_target, task )
         return  task
 
 
-    def addDllTask( self, env, target, src_list, task_list= None ):
-        target= env.getDllPath( target )
+    def addDllTask( self, env, name, src_list, task_list= None, target= None ):
+        if target is None:
+            target= env.getDllPath( name )
         abs_target= self.getGenericPath( target )
         task= self.findTask( abs_target )
         if task != None:
@@ -213,7 +214,7 @@ class BuildTool:
                 task= self.addObjTask( env, obj_file, [src] )
             task_list.append( task )
 
-        command= env.getBuildCommand_Dll( target, obj_list )
+        command= env.getBuildCommand_Dll( abs_target, obj_list )
 
         task= Depend.ExeTask( env, abs_target, obj_list, command, task_list )
         self.addTask( abs_target, task )
@@ -233,49 +234,49 @@ class BuildTool:
 #        return  task
 
 
-    def addSimpleExeTask( self, env, target, src_list ):
-        target= env.getExePath( target )
-        abs_target= self.getGenericPath( target )
-        task= self.findTask( abs_target )
+#    def addSimpleExeTask( self, env, target, src_list ):
+#        target= env.getExePath( target )
+#        abs_target= self.getGenericPath( target )
+#        task= self.findTask( abs_target )
+#        if task != None:
+#            return  task
+#
+#        command= env.getBuildCommand_Link( target, src_list )
+#        task= Depend.ExeTask( env, abs_target, src_list, command, [] )
+#        self.addTask( abs_target, task )
+#        return  task
+
+
+    def addGroupTask( self, env, task_name, task_list ):
+        task= self.findTask( task_name )
         if task != None:
+            raise BuildUtility.FLB_Error( 'task "%s" already exists' % task_name )
             return  task
+        return  self.addTask( task_name, Depend.GroupTask( env, task_name, task_list ) )
 
-        command= env.getBuildCommand_Link( target, src_list )
-        task= Depend.ExeTask( env, abs_target, src_list, command, [] )
-        self.addTask( abs_target, task )
-        return  task
+    def addNamedTask( self, env, task_name, task_list ):
+        return  self.addGroupTask( env, task_name, task_list )
 
-
-    def addGroupTask( self, env, target, task_list ):
-        task= self.findTask( target )
+    def addScriptTask( self, env, task_name, script, task_list= None ):
+        task= self.findTask( task_name )
         if task != None:
-            raise BuildUtility.FLB_Error( 'task "%s" already exists' % target )
-            return  task
-        return  self.addTask( target, Depend.GroupTask( env, target, task_list ) )
-
-    def addNamedTask( self, env, target, task_list ):
-        return  self.addGroupTask( env, target, task_list )
-
-    def addScriptTask( self, env, target, script, task_list= None ):
-        task= self.findTask( target )
-        if task != None:
-            raise BuildUtility.FLB_Error( 'task "%s" already exists' % target )
+            raise BuildUtility.FLB_Error( 'task "%s" already exists' % task_name )
             return  task
         if task_list is None:
             task_list= []
-        return  self.addTask( target, Depend.ScriptTask( env, target, script, task_list ) )
+        return  self.addTask( task_name, Depend.ScriptTask( env, task_name, script, task_list ) )
 
-    def addSubmoduleTasks( self, env, name, module_list, target_name= None, task_list= None ):
+    def addSubmoduleTasks( self, env, task_name, module_list, target_name= None, task_list= None ):
         if task_list is None:
             task_list= []
         if target_name is None:
-            target_name= name
+            target_name= task_name
         for dir in module_list:
             task= self.findTask( dir + '/' + target_name )
             if task is not None:
                 task_list.append( task )
         if task_list != []:
-            return  self.addGroupTask( env, name, task_list )
+            return  self.addGroupTask( env, task_name, task_list )
         return  None
 
 
@@ -287,8 +288,8 @@ class BuildTool:
         clean_task.cwd= os.getcwd()
         return  clean_task
 
-    def addSequentialTask( self, env, target, task_list ):
-        return  self.addTask( target, Depend.SequentialTask( env, target, task_list ) )
+    def addSequentialTask( self, env, task_name, task_list ):
+        return  self.addTask( task_name, Depend.SequentialTask( env, task_name, task_list ) )
 
     #--------------------------------------------------------------------------
 

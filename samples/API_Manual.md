@@ -177,25 +177,40 @@ tool.addPlatform( 'LinuxGCC', PlatformLinuxGCC )
 
 
 
-#### ```task= tool.addLibTask( env, target_name, [src_file..], [depend_task..] )```
+#### ```task= tool.addLibTask( env, name, src_list, task_list= None, target= None )```
 
 静的 Link ライブラリをビルドするためのタスクを登録します。
-depend_task は省略できます。
+依存する Task がある場合 task_list を与えることができます。task_list は省略できます。
 
 
-#### ```task= tool.addExeTask( env, target_name, [src_file..], [depend_task..] )```
+#### ```task= tool.addExeTask( env, name, src_list, task_list= None, target= None )```
 
 実行ファイルをビルドするためのタスクを登録します。
-depend_task は省略できます。
+依存する Task がある場合 task_list を与えることができます。task_list は省略できます。
+
+name の代わりに target を使うと、出力ファイル名を直接指定することができます。
+name を使う場合は obj/PLATFORM/ARCH/CONFIG/name.exe に作られます。
+
+```python
+tool.addExeTask( env, 'test', src_list )
+# --> ./obj/Windows/x64/Debug/test.exe
+```
+
+```python
+tool.addExeTask( env, src_list= src_list, target= 'test_' + env.getConfig() )
+# --> ./test_Debug.exe
+```
+
+出力ファイル名のフルパスがそのまま Task 名になります。
 
 
-#### ```task= tool.addDllTask( env, target_name, [src_file..], [depend_task..] )```
+#### ```task= tool.addDllTask( env, name, src_list, task_list= None, target= None )```
 
 動的 Link ライブラリ/共有ライブラリをビルドするためのタスクを登録します。
-depend_task は省略できます。
+依存する Task がある場合 task_list を与えることができます。task_list は省略できます。
 
 
-#### ```task= tool.addGroupTask( env, task_name, [depend_task..] )```
+#### ```task= tool.addGroupTask( env, task_name, task_list )```
 
 複数の Task をグループ化して新しい Task として登録します。
 登録した Task 同士には依存関係はないものとみなし、可能な限り並列に実行を行います。
@@ -205,7 +220,7 @@ tool.addGroupTask( genv, 'build', [task1, task2] )
 ```
 
 
-#### ```task= tool.addScriptTask( env, task_name, python_func, [depend_task..] )```
+#### ```task= tool.addScriptTask( env, task_name, script, task_list= None )```
 
 任意の Python 関数 'python_func' を実行します。
 python_func には引数として自分自身の task が渡ります。
@@ -220,8 +235,8 @@ task= tool.addScriptTask( genv, 'build', print_func )
 task.message= 'print message'
 ```
 
-depend_task は省略可能です。
-depend_task が与えられた場合は depend_task の完了を待ってから python_func を実行します。
+task_list は省略可能です。
+task_list が与えられた場合は task_list の完了を待ってから python_func を実行します。
 python_func が None の場合 addGroupTask() と同じものになります。
 
 ```python
@@ -229,7 +244,7 @@ tool.addScriptTask( genv, 'build', None, [task1, task2] ) # same as addGroupTask
 ```
 
 
-#### ```task= tool.addCleanTask( env, task_name, [depend_task..] )```
+#### ```task= tool.addCleanTask( env, task_name, task_list= None )```
 
 生成物を消去するための task を登録します。
 この task を実行すると obj ディレクトリを消去します。
@@ -246,7 +261,7 @@ Makefile の include に相当します。
 共通で参照するパラメータや関数などを定義しておくことができます。
 
 
-#### ```tool.execSubmoduleScripts( script_name, [submodule_list...] )```
+#### ```tool.execSubmoduleScripts( file_name, module_list )```
 
 別のフォルダにある Makefile を読み込んで task を登録します。
 execScript() と違い、task 名を階層化するので同名の task があっても区別できるようになります。
@@ -263,7 +278,7 @@ tool.execSubmoduleScripts( 'FLB_Makefile.py', [ 'subfolder1', 'subfolder2' ] )
 'subfolder1/build'、'subfolder2/build' の名前で実行できるようになります。
 
 
-#### ```task= tool.addSubmoduleTasks( env, task_name, [submodule_list...], target_name, [depend_task..] )```
+#### ```task= tool.addSubmoduleTasks( env, task_name, module_list, target_name= None, task_list= None )```
 
 階層以下の同名の task をグループ化します。
 target_name を省略した場合は task_name と同じものとみなします。

@@ -81,5 +81,5 @@ env= tool.createTargetEnvironment( 'Android' )
 dumpEnvironment( env, 'Debug', 'arm7' )
 
 
-tool.addNamedTask( env, 'build', [] )
+tool.addGroupTask( env, 'build', [] )
 

@@ -36,7 +36,8 @@ def addExeTasks( env, task_name, exe_name, src_list, config_list, arch_list ):
                 depend_task.append( lib_task )
             #------------------------------------------------------------------
             local_env.refresh()
-            task= env.tool.addExeTask( local_env, exe_name, src_list, depend_task )
+            target= local_env.getExeName( exe_name + '_' + local_env.getTargetArch() + '_' + local_env.getConfig() )
+            task= env.tool.addExeTask( local_env, None, src_list, depend_task, target=target )
             task_list.append( task )
     return  env.tool.addGroupTask( env, task_name, task_list )
 
