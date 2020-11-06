@@ -17,6 +17,8 @@ Python で書かれており、Makefile 自体も Python コードをそのま�
 
 ## 使い方
 
+Python 3.x が必要です。
+
 ```flmake [<options>] [<target_task_name...>]```
 
 target_task_name 何も指定しない場合、デフォルトで "build" Task を実行します。
@@ -27,6 +29,7 @@ target_task_name 何も指定しない場合、デフォルトで "build" Task �
 | --list     | 定義されているタスク一覧を表示します。   |
 | --job ```<n>```  | 並列度を指定します。--job 1 で単一スレッドになります。デフォルトはハードウエアスレッド数。  |
 | --opt ```<kname>=<value>```   | 環境変数(ユーザー定義変数)を定義します。   |
+| --verbose  | Build 中の表示を増やします。 |
 | --debug    | 実行 command の echo や Python Error の詳細を表示します。 |
 
 
@@ -110,7 +113,7 @@ flmake コマンドを実行するとビルドできます。
 
 ### FlatBuildTool API - Platform 環境
 
-#### ```env= tool.createTargetEnvironment( platform_name= genv.getHostPlatform() )```
+#### ```env= tool.createTargetEnvironment( platform= None )```
 
 BuildTarget 用の Local な環境を作成します。親である genv の設定値を引き継ぎます。
 PlatformName を指定しない場合は、Build を行っている Host PC の環境と同一であるとみなします。
@@ -122,7 +125,7 @@ PlatformName を指定しない場合は、Build を行っている Host PC の�
 
 デフォルトでサポートしている Platform
 
-| platform_name   | 対応している Host       | 対応 Architecture      |
+| platform        | 対応している Host       | 対応 Architecture      |
 |:--              |:--                      |:--                     |
 | Windows         | Windows                 | x64, x86, arm64        |
 | Linux           | Linux/WSL/Termux/macOS  | x64, x86, arm64, arm7, arm6  |
@@ -162,7 +165,7 @@ tool.addPlatform( 'LinuxGCC', PlatformLinuxGCC )
 
 #### ```task= tool.findTask( task_name )```
 
-名前で task を検索します。
+名前で Task を検索します。
 
 
 #### ```task= tool.addTask( task_name, task )```
@@ -179,25 +182,25 @@ tool.addPlatform( 'LinuxGCC', PlatformLinuxGCC )
 
 #### ```task= tool.addLibTask( env, name, src_list, task_list= None, target= None )```
 
-静的 Link ライブラリをビルドするためのタスクを登録します。
+Static Link ライブラリをビルドするためのタスクを登録します。
 依存する Task がある場合 task_list を与えることができます。task_list は省略できます。
 
 
 #### ```task= tool.addExeTask( env, name, src_list, task_list= None, target= None )```
 
-実行ファイルをビルドするためのタスクを登録します。
+実行ファイルを生成するためのタスクを登録します。
 依存する Task がある場合 task_list を与えることができます。task_list は省略できます。
 
 name の代わりに target を使うと、出力ファイル名を直接指定することができます。
 name を使う場合は obj/PLATFORM/ARCH/CONFIG/name.exe に作られます。
 
 ```python
-tool.addExeTask( env, 'test', src_list )
+tool.addExeTask( env, 'test', [ 'main.cpp' ] )
 # --> ./obj/Windows/x64/Debug/test.exe
 ```
 
 ```python
-tool.addExeTask( env, src_list= src_list, target= 'test_' + env.getConfig() )
+tool.addExeTask( env, src_list= [ 'main.cpp' ], target= 'test_' + env.getConfig() )
 # --> ./test_Debug.exe
 ```
 
@@ -222,7 +225,7 @@ tool.addGroupTask( genv, 'build', [task1, task2] )
 
 #### ```task= tool.addScriptTask( env, task_name, script, task_list= None )```
 
-任意の Python 関数 'python_func' を実行します。
+任意の Python 関数 script を実行します。
 python_func には引数として自分自身の task が渡ります。
 
 関数にパラメータを渡したい場合は task Object に追加してください。
@@ -236,18 +239,18 @@ task.message= 'print message'
 ```
 
 task_list は省略可能です。
-task_list が与えられた場合は task_list の完了を待ってから python_func を実行します。
-python_func が None の場合 addGroupTask() と同じものになります。
+task_list が与えられた場合は task_list の完了を待ってから script を実行します。
+script が None の場合 addGroupTask() と同等になります。
 
 ```python
-tool.addScriptTask( genv, 'build', None, [task1, task2] ) # same as addGroupTask()
+tool.addScriptTask( genv, 'build', None, [task1, task2] )
 ```
 
 
 #### ```task= tool.addCleanTask( env, task_name, task_list= None )```
 
 生成物を消去するための task を登録します。
-この task を実行すると obj ディレクトリを消去します。
+この Task を実行すると obj ディレクトリを消去します。
 
 
 
@@ -297,9 +300,10 @@ tool.addSubmoduleTasks( genv, 'build', [ 'subfolder1', 'subfolder2' ] )
 可能な限り並列に実行しようとします。
 
 
-#### ```tool.pushDir( submodule_folder )```
+#### ```tool.pushDir( dir, prefix= None )```
 
-task の namespace に prefix 'submodule_folder/' を追加し、カレントディレクトリを submodule_folder に移します。
+Task の namespace に prefix を追加し、サブディレクトリ dir に移動します。
+prefix を省略すると dir と同じ名前になります。
 
 
 #### ```tool.popDir()```
@@ -310,10 +314,10 @@ tool.pushDir() に対応します。1 つ前のフォルダに戻ります。
 ### FlatBuildTool API - その他
 
 
-#### ```value= tool.findPath( path_name, env_name )```
+#### ```value= tool.findPath( path, env_name )```
 
-path_name が存在しているか調べます。存在している場合は path_name をフルパスに変換して返します。
-存在していない場合は環境変数 env_name の値を調べて、パスが存在していればその値を返します。
+path が存在しているか調べます。存在している場合は path をフルパスに変換して返します。
+存在していない場合は環境変数 path の値を調べて、パスが存在していればその値を返します。
 見つからない場合は None を返します。
 
 ```python
@@ -517,29 +521,6 @@ obj の出力先フォルダを指定します。
 実行ファイルの出力先フォルダを指定します。
 ここで指定したフォルダの下に Platform, Architecture, Config 毎のフォルダが作られます。
 
-出力ファイル名と出力先を完全に制御したい場合は、
-ファイル名決定用の関数を定義することができます。
-EXE_NAME_FUNC を定義した場合はサブフォルダが作られません。
-
-```
-def makeExeName( env, src_name ):
-    if src_name:
-        return  env.getExeName( src_name + '_' + env.getTargetArch() + '_' + env.getConfig() )
-    return  '.'
-env.EXE_NAME_FUNC= makeExeName
-```
-
-
-デフォルトの場合
-
-* ./obj/Windows/x64/Release/test.exe
-* ./obj/Windows/x64/Debug/test.exe
-
-例の EXE_NAME_FUNC を定義した場合
-
-* ./test_x64_Debug.exe
-* ./test_x64_Release.exe
-
 
 #### ```env.getOutputPath( path )```
 
@@ -596,6 +577,20 @@ OS で設定した環境変数だけでなく、
 この命令は現在のビルド環境にだけ設定するので、親の環境変数には影響を与えません。
 
 
+### Platform Environment API - その他
+
+#### ```env.isValid()```
+
+Platform 環境が有効かどうか調べます。
+SDK が Install されていない場合は False を返します。
+
+```python
+env= tool.createTargetEnvironment( 'Android' )
+if env.isValid():
+    sdk installed
+```
+
+
 
 ### Platform Environment API - メンバ変数
 
@@ -607,6 +602,8 @@ FlatBuildTool のインスタンスにアクセスします。
 ### Task API - Dependency Graph
 
 #### ```task.addDependTasks( [task..] )```
+
+依存タスクを追加します。
 
 #### ```task.onCompleteTask( task )```
 
@@ -814,6 +811,20 @@ S0～S3 と lib1/lib2 のビルドを待ってから S4, S5 のコンパイル�
 
 * sampels/application_and_staticlib は submodule を使いつつ最小限の依存を定義しています。
 * sampels/application_and_dynamiclib は file copy に完了タスクを使っています。
+
+
+
+## 組み込み版の作成
+
+1. FlatBuildTool/bin に embedded 版 python を展開しておきます。
+2. FlatBuildTool/src の中で python ./FlatBuildTool.py compile を実行します。
+
+
+## Thread Count
+
+Windows 以外の環境では、初回起動時に取得したハードウエア Thread 数を FlatBuildTool/src/.cpu_count_cache.txt ファイルにキャッシュします。
+一部の ARM Processor では一定の負荷をかけないと正しい値が取れないためです。
+スレッド数が正しくない場合は .cpu_count_cache.txt を削除してみてください。
 
 
 ## Bug

@@ -1,4 +1,5 @@
-# test makefile
+# Platform test
+# vim:ts=4 sw=4 et:
 
 
 def dumpEnvironment( env, config, arch ):
@@ -14,6 +15,8 @@ def dumpEnvironment( env, config, arch ):
         print()
 
     def dumpCommandLine( msg, command ):
+        if not isinstance( command[0], str ):
+            command= command[1:]
         print( msg + ' ' + ' '.join( command ) )
 
     print( '========================================' )
@@ -67,19 +70,33 @@ def dumpEnvironment( env, config, arch ):
 
 
 def dumpEnvironmentAll( env ):
+    global dumpEnvironment
+    for config in ['Debug', 'Release', 'Retail']:
+        for arch in env.getSupportArchList():
+            dumpEnvironment( env, config, arch )
+
+
+def dumpPlatforms( tool ):
+    global dumpEnvironmentAll
+
+    # Host
+    env= tool.createTargetEnvironment()
     if env.isValid():
-        for config in ['Debug', 'Release', 'Retail']:
-            for arch in env.getSupportArchList():
-                dumpEnvironment( env, config, arch )
+        dumpEnvironmentAll( env )
+
+    # Android
+    env= tool.createTargetEnvironment( 'Android' )
+    if env.isValid():
+        dumpEnvironmentAll( env )
+
+    # iOS
+    env= tool.createTargetEnvironment( 'iOS' )
+    if env.isValid():
+        dumpEnvironmentAll( env )
 
 
-env= tool.createTargetEnvironment( genv.getHostPlatform() )
-dumpEnvironment( env, 'Debug', 'x64' )
+dumpPlatforms( tool )
 
 
-env= tool.createTargetEnvironment( 'Android' )
-dumpEnvironment( env, 'Debug', 'arm7' )
-
-
-tool.addGroupTask( env, 'build', [] )
+tool.addGroupTask( genv, 'build', [] )
 

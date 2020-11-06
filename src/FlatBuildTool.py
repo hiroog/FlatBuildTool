@@ -33,6 +33,7 @@ class BuildTool:
 
         if os.path.exists( StartupScript ):
             self.execScript( StartupScript )
+        Log.v( option )
 
     def dump( self ):
         self.timestamp_cache.dump()
@@ -335,7 +336,6 @@ def load_config():
                     continue
                 word= line.split()
                 opt_dict[word[0]]= word[1]
-    Log.v( opt_dict )
     return  opt_dict
 
 
@@ -347,7 +347,7 @@ def usage():
     Log.p( '  --job <thread>     default : system thread count' )
     Log.p( '  --list             display all targets' )
     Log.p( '  --opt <env_name>=<value>' )
-    Log.p( '  --verbose' )
+    Log.p( '  -v, --verbose' )
     Log.p( '  --debug' )
     Log.p( 'parallel action: target1 target2 ...' )
     Log.p( 'sequential action: target1,target2,...' )
@@ -391,7 +391,7 @@ def main():
             elif arg == '--debug':
                 debug_flag= True
                 Log.DebugLevel= 2
-            elif arg == '--verbose':
+            elif arg == '-v' or arg == '--verbose':
                 debug_flag= True
                 Log.DebugLevel= 1
             elif arg == '--dump':

@@ -82,7 +82,7 @@ tool.addScriptTask( genv, 'compile', compile )
 
 
 def usage( task ):
-    print( 'usage: flmake compile' )
+    print( 'usage: python FlatBuildTool.py compile' )
 
 tool.addScriptTask( genv, 'build', usage )
 
