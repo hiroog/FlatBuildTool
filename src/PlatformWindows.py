@@ -33,16 +33,24 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.setDefault()
 
+        self.ARCH_LIST= [ 'x64', 'x86' ]
+        if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm64' ) ):
+            self.ARCH_LIST.append( 'arm64' )
+        if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm' ) ):
+            self.ARCH_LIST.append( 'arm7' )
+
         Log.d( 'MSVC = %d' % self.MSVC_VERSION )
-        Log.d( 'SDK = ' + self.WINDOWS_SDK_DIR )
-        Log.d( 'SDK Version = ' + self.WINDOWS_SDK_VERSION )
+        Log.d( 'SDK = ', self.WINDOWS_SDK_DIR )
+        Log.d( 'SDK Version = ', self.WINDOWS_SDK_VERSION )
+        Log.d( 'CPU Arch    = ', ','.join(self.ARCH_LIST) )
 
 
     def summary( self ):
         super().summary()
         Log.p( 'MSVC = %d' % self.MSVC_VERSION )
-        Log.p( 'SDK = ' + self.WINDOWS_SDK_DIR )
-        Log.p( 'SDK Version = ' + self.WINDOWS_SDK_VERSION )
+        Log.p( 'SDK = ', self.WINDOWS_SDK_DIR )
+        Log.p( 'SDK Version = ', self.WINDOWS_SDK_VERSION )
+        Log.p( 'CPU Arch    = ', ','.join(self.ARCH_LIST) )
 
 
     def isValid( self ):
@@ -183,7 +191,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                 elif self.getTargetArch() == 'x86':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x86' ) )
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x64' ) )
-                elif self.getTargetArch() == 'arm':
+                elif self.getTargetArch() == 'arm7':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm' ) )
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x64' ) )
                 elif self.getTargetArch() == 'arm64':
@@ -195,7 +203,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x86' ) )
                 elif self.getTargetArch() == 'x86':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x86' ) )
-                elif self.getTargetArch() == 'arm':
+                elif self.getTargetArch() == 'arm7':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/arm' ) )
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x86' ) )
                 elif self.getTargetArch() == 'arm64':
@@ -255,7 +263,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/x64' ) )
             elif self.getTargetArch() == 'x86':
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/x86' ) )
-            elif self.getTargetArch() == 'arm':
+            elif self.getTargetArch() == 'arm7':
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/arm' ) )
             elif self.getTargetArch() == 'arm64':
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/arm64' ) )
@@ -266,7 +274,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             if self.getTargetArch() == 'x64':
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/amd64' ) )
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib' ) )
-            elif self.getTargetArch() == 'arm':
+            elif self.getTargetArch() == 'arm7':
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib/arm' ) )
                 self.LIB_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'lib' ) )
             else:
@@ -294,9 +302,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt SSE=AVX
         sse= self.getUserOption( 'SSE', 'AVX2' )
         table_arch= {
-                'x64' : '-arch:'+sse+' -favor:blend',
-                'x86' : '-arch:'+sse+' -favor:blend',
-                'arm' : '-arch:VFPv4',
+                'x64'   : '-arch:'+sse+' -favor:blend',
+                'x86'   : '-arch:'+sse+' -favor:blend',
+                'arm7'  : '-arch:VFPv4',
                 'arm64' : '',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
@@ -381,7 +389,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     #--------------------------------------------------------------------------
 
     def getSupportArchList( self ):
-        return  [ 'x64', 'x86' ]
-        #return  [ 'x64', 'x86', 'arm', 'arm64' ]
+        #return  [ 'x64', 'x86' ]
+        #return  [ 'x64', 'x86', 'arm7', 'arm64' ]
+        return  self.ARCH_LIST
 
 

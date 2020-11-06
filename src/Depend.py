@@ -359,7 +359,7 @@ class ObjTask( TaskBase ):
         self.command= command
 
     def build( self, message ):
-        Log.v( 'ObjTask: ' + self.target )
+        Log.p( 'ObjTask: ' + self.target )
         Log.v( '  <== ' + message )
         self.env.makeOutputDirectory( self.target )
         result_code= BuildUtility.ExecCommand( self.command )
@@ -405,7 +405,7 @@ class ExeTask( TaskBase ):
         self.task_list= task_list
 
     def build( self, message ):
-        Log.v( 'ExeTask: ' + self.target )
+        Log.p( 'ExeTask: ' + self.target )
         Log.v( '  <== ' + message )
         self.env.makeOutputDirectory( self.target )
         #self.tool.thread_pool.addJob( CompileJob( self.tool, self.env, self.command ) )
@@ -448,7 +448,7 @@ class ExeTaskFromSrc( TaskBase ):
 
 
     def build( self, message ):
-        Log.v( 'ExeTask: ' + self.target )
+        Log.p( 'ExeTask: ' + self.target )
         Log.v( '  <== ' + message )
         result_code= BuildUtility.ExecCommand( self.command )
         if result_code == 0:
@@ -499,7 +499,7 @@ class LibTask( TaskBase ):
 
 
     def build( self, message ):
-        Log.v( 'LibTask: ' + self.target )
+        Log.p( 'LibTask: ' + self.target )
         Log.v( '  <== ' + message )
         result_code= BuildUtility.ExecCommand( self.command )
         self.tool.timestamp_cache.removeEntry( self.target )
