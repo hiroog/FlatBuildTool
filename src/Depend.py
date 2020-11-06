@@ -359,13 +359,13 @@ class ObjTask( TaskBase ):
         self.command= command
 
     def build( self, message ):
-        Log.p( 'ObjTask: ' + self.target )
-        Log.p( '  <== ' + message )
+        Log.v( 'ObjTask: ' + self.target )
+        Log.v( '  <== ' + message )
         self.env.makeOutputDirectory( self.target )
         result_code= BuildUtility.ExecCommand( self.command )
         self.tool.timestamp_cache.removeEntry( self.target )
         if result_code == 0:
-            Log.p( ' Ok ' + self.target )
+            Log.v( ' Ok ' + self.target )
         return  self.completeTask( result_code )
 
 
@@ -405,8 +405,8 @@ class ExeTask( TaskBase ):
         self.task_list= task_list
 
     def build( self, message ):
-        Log.p( 'ExeTask: ' + self.target )
-        Log.p( '  <== ' + message )
+        Log.v( 'ExeTask: ' + self.target )
+        Log.v( '  <== ' + message )
         self.env.makeOutputDirectory( self.target )
         #self.tool.thread_pool.addJob( CompileJob( self.tool, self.env, self.command ) )
 
@@ -422,7 +422,7 @@ class ExeTask( TaskBase ):
 
         self.tool.timestamp_cache.removeEntry( self.target )
         if result_code == 0:
-            Log.p( '  Ok ' + self.target )
+            Log.v( '  Ok ' + self.target )
         return  self.completeTask( result_code )
 
     def isBuild( self, context, target_time ):
@@ -448,11 +448,11 @@ class ExeTaskFromSrc( TaskBase ):
 
 
     def build( self, message ):
-        Log.p( 'ExeTask: ' + self.target )
-        Log.p( '  <== ' + message )
+        Log.v( 'ExeTask: ' + self.target )
+        Log.v( '  <== ' + message )
         result_code= BuildUtility.ExecCommand( self.command )
         if result_code == 0:
-            Log.p( '  Ok ' + self.target )
+            Log.v( '  Ok ' + self.target )
         return  result_code
 
 
@@ -499,12 +499,12 @@ class LibTask( TaskBase ):
 
 
     def build( self, message ):
-        Log.p( 'LibTask: ' + self.target )
-        Log.p( '  <== ' + message )
+        Log.v( 'LibTask: ' + self.target )
+        Log.v( '  <== ' + message )
         result_code= BuildUtility.ExecCommand( self.command )
         self.tool.timestamp_cache.removeEntry( self.target )
         if result_code == 0:
-            Log.p( '  Ok ' + self.target )
+            Log.v( '  Ok ' + self.target )
         return  result_code
 
 

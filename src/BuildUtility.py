@@ -13,7 +13,7 @@ class Log:
 
     @staticmethod
     def d( *message ):
-        if Log.DebugLevel >= 1:
+        if Log.DebugLevel >= 2:
             print( *message )
 
     @staticmethod
@@ -23,6 +23,11 @@ class Log:
     @staticmethod
     def p( *message ):
         print( *message )
+
+    @staticmethod
+    def v( *message ):
+        if Log.DebugLevel >= 1:
+            print( *message )
 
 
 

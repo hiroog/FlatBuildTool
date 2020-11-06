@@ -335,19 +335,20 @@ def load_config():
                     continue
                 word= line.split()
                 opt_dict[word[0]]= word[1]
-    print( opt_dict )
+    Log.v( opt_dict )
     return  opt_dict
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.20 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.21 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
-    Log.p( '  --debug' )
     Log.p( '  --dump' )
     Log.p( '  --job <thread>     default : system thread count' )
     Log.p( '  --list             display all targets' )
     Log.p( '  --opt <env_name>=<value>' )
+    Log.p( '  --verbose' )
+    Log.p( '  --debug' )
     Log.p( 'parallel action: target1 target2 ...' )
     Log.p( 'sequential action: target1,target2,...' )
     sys.exit( 0 )
@@ -388,6 +389,9 @@ def main():
                 if ai < acount:
                     job_count= int( sys.argv[ai] )
             elif arg == '--debug':
+                debug_flag= True
+                Log.DebugLevel= 2
+            elif arg == '--verbose':
                 debug_flag= True
                 Log.DebugLevel= 1
             elif arg == '--dump':

@@ -92,7 +92,7 @@ class ThreadPool:
             #self.max_thread= os.cpu_count()
             self.max_thread= CpuCountLib.getCpuCount()
         self.thread_list= []
-        Log.p( 'Thread = %d' % self.max_thread )
+        Log.v( 'Thread = %d' % self.max_thread )
 
     def addThread( self ):
         if len( self.thread_list ) < self.max_thread:
