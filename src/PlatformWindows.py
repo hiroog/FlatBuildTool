@@ -34,10 +34,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.setDefault()
 
         self.ARCH_LIST= [ 'x64', 'x86' ]
-        if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm64' ) ):
-            self.ARCH_LIST.append( 'arm64' )
-        if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm' ) ):
-            self.ARCH_LIST.append( 'arm7' )
+        if self.getUserOption( 'ARM', '0' ) == '1':
+            if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm64' ) ):
+                self.ARCH_LIST.append( 'arm64' )
+            if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm' ) ):
+                self.ARCH_LIST.append( 'arm7' )
 
         Log.d( 'MSVC = %d' % self.MSVC_VERSION )
         Log.d( 'SDK = ', self.WINDOWS_SDK_DIR )

@@ -10,6 +10,7 @@
 #SSE SSE4.1
 #SSE SSSE3
 #SSE SSE3
+#ARM 1
 # -- Linux options
 #ARM7FP neon
 #ARM7FP neon-vfpv4

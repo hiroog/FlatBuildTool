@@ -316,8 +316,15 @@ class BuildTool:
 
     #--------------------------------------------------------------------------
 
-    def list( self ):
+    def f_list( self ):
         self.task_cache.list()
+
+    def f_platform( self ):
+        for platform in self.platform_table:
+            env= self.createTargetEnvironment( platform )
+            if env.isValid():
+                Log.p( '[%s]--------' % platform )
+                env.summary()
 
 
 
@@ -340,12 +347,13 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.21 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.22 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
     Log.p( '  --job <thread>     default : system thread count' )
     Log.p( '  --list             display all targets' )
+    Log.p( '  --platform' )
     Log.p( '  --opt <env_name>=<value>' )
     Log.p( '  -v, --verbose' )
     Log.p( '  --debug' )
@@ -356,11 +364,10 @@ def usage():
 
 def main():
     makefile= 'FLB_Makefile.py'
-#    platform= None
     default_task= 'build'
     debug_flag= False
     dump_flag= False
-    list_flag= False
+    func_command= None
     env_dump= False
     job_count= 0
     action_list= []
@@ -397,7 +404,9 @@ def main():
             elif arg == '--dump':
                 dump_flag= True
             elif arg == '--list':
-                list_flag= True
+                func_command= 'f_list'
+            elif arg == '--platform':
+                func_command= 'f_platform'
             else:
                 usage()
         else:
@@ -412,8 +421,8 @@ def main():
         try:
             tool= BuildTool( job_count, opt_dict )
             tool.execScript( makefile )
-            if list_flag:
-                tool.list()
+            if func_command:
+                getattr( tool, func_command )()
             else:
                 for task_name in action_list:
                     actions= task_name.split(',')

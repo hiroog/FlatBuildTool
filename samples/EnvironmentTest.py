@@ -73,8 +73,8 @@ def dumpEnvironmentAll( env ):
     global dumpEnvironment
     for config in ['Debug', 'Release', 'Retail']:
         for arch in env.getSupportArchList():
-            #dumpEnvironment( env, config, arch )
-            env.summary()
+            dumpEnvironment( env, config, arch )
+            #env.summary()
 
 
 def dumpPlatforms( tool ):

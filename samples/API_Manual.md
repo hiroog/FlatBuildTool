@@ -618,6 +618,27 @@ FlatBuildTool のインスタンスにアクセスします。
 Task を生成したときのビルド環境にアクセスします。
 
 
+### Log API
+
+#### ```Log.p( text )```
+
+Console に表示出力します。
+
+#### ```Log.v( text )```
+
+--verbose (-v) オプション指定時に表示出力します。
+
+#### ```Log.d( text )```
+
+Console に表示出力します。
+
+--debug オプション指定時に表示出力します。
+
+#### ```Log.e( text )```
+
+Console に Error 出力します。
+
+
 
 ## PC 固有のデフォルトオプション
 
