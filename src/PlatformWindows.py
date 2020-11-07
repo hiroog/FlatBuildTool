@@ -16,7 +16,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def __init__( self, tool, parent= None ):
         super().__init__( tool, parent )
 
-        #self.X86_PROGRAMFILES= 'C:/Program Files'
         self.MSVC_DIR= None
         self.WINDOWS_SDK_DIR= None
         self.WINDOWS_SDK_VERSION= None
@@ -25,11 +24,14 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_LINK= None
         self.CMD_LIB= None
 
-        self.SAVE_PATH= os.environ[ 'PATH' ]
+        if self.getHostPlatform() != 'Windows':
+            return
 
         self.findVSPath()
         if self.MSVC_DIR is None:
             return
+
+        self.SAVE_PATH= os.environ[ 'PATH' ]
 
         self.setDefault()
 

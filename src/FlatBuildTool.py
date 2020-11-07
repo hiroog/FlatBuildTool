@@ -319,7 +319,7 @@ class BuildTool:
     def f_list( self ):
         self.task_cache.list()
 
-    def f_platform( self ):
+    def f_platforms( self ):
         for platform in self.platform_table:
             env= self.createTargetEnvironment( platform )
             if env.isValid():
@@ -347,13 +347,13 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.22 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.23 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
     Log.p( '  --job <thread>     default : system thread count' )
     Log.p( '  --list             display all targets' )
-    Log.p( '  --platform' )
+    Log.p( '  --platforms' )
     Log.p( '  --opt <env_name>=<value>' )
     Log.p( '  -v, --verbose' )
     Log.p( '  --debug' )
@@ -405,8 +405,8 @@ def main():
                 dump_flag= True
             elif arg == '--list':
                 func_command= 'f_list'
-            elif arg == '--platform':
-                func_command= 'f_platform'
+            elif arg == '--platforms':
+                func_command= 'f_platforms'
             else:
                 usage()
         else:
