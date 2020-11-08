@@ -19,7 +19,7 @@ Multi-platform build tool for C/C++
 # FLB_Makefile.py
 env= tool.createTargetEnvironment()
 task= tool.addExeTask( env, 'test', [ 'main.cpp' ] )
-tool.addNamedTask( env, 'build', [task] )
+tool.addTask( 'build', task )
 ```
 
 ### Build
