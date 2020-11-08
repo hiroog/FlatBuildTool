@@ -4,11 +4,14 @@ Multi-platform build tool for C/C++
 
 ## Supported platform
 
-- Windows x86/x64
-- Linux x86/x64/armv6/armv7/arm64
-- Android armv7/arm64/x86/x64
-- macOS x64
-- iOS armv7/arm64
+- Windows x64/x86/arm64/arm
+- Linux x86_64/x86/aarch64/armv7l/armv6l
+- Android aarch64/armv7a/x86_64/x86
+- macOS x86_64
+
+<!--
+- iOS arm64/armv7
+-->
 
 
 ## How to use
@@ -27,9 +30,5 @@ tool.addTask( 'build', task )
 ```
 $ flmake
 ```
-
-
-
-
 
 
