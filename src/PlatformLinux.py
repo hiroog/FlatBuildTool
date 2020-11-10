@@ -90,9 +90,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         avx_opt= ''
         if self.SSE == 'AVX512':
-            avx_opt= ' -mavx2 -mfma -mavx512f -mavx512vl -mavx512bw -mavx512dq -mavx512vnni'
+            avx_opt= ' -mavx2 -mfma -mavx512f -mavx512vl -mavx512bw -mavx512dq -mavx512vnni -mf16c'
         elif self.SSE == 'AVX2':
-            avx_opt= ' -mavx2 -mfma'
+            avx_opt= ' -mavx2 -mfma -mf16c'
         table_arch= {
             'x86':   '-m32 -msse -msse2 -msse3 -mssse3 -maes' + avx_opt,
             'x64':   '-m64 -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes' + avx_opt,
