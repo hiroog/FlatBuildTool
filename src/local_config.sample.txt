@@ -12,6 +12,10 @@
 #SSE SSE3
 #ARM 1
 # -- Linux options
+#CC clang
+#CC clang-6
+#CC gcc
+#CC gcc-9
 #ARM7FP neon
 #ARM7FP neon-vfpv4
 #ARM7FP vfpv3-d16

@@ -12,8 +12,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def __init__( self, tool, parent= None ):
         super().__init__( tool, parent )
 
-        self.CMD_CC= 'clang'
-        self.CMD_LINK= 'clang'
+        # --opt CC=clang-9
+        # --opt CC=gcc
+        self.CMD_CC= self.getUserOption( 'CC', 'clang' )
+        self.CMD_LINK= self.CMD_CC
         self.CMD_LIB= 'ar'
 
         self.ARM7ABI= 'hard'
