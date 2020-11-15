@@ -78,7 +78,7 @@ class BuildTool:
         return  default_value
 
     def findPath( self, path, env= None ):
-        return  BuildUtility.FindPath( path, env )
+        return  BuildUtility.FindPath2( path, self.getEnv( env ) )
 
     def findPaths( self, path_list ):
         return  BuildUtility.FindPaths( path )
@@ -293,6 +293,59 @@ class BuildTool:
 
     #--------------------------------------------------------------------------
 
+    def addLibTasks( self, env, task_name, lib_name, src_list, config_list, arch_list= None, task_list= None ):
+        if arch_list is None:
+            arch_list= env.getSupportArchList()
+        task_group= []
+        for config in config_list:
+            for arch in arch_list:
+                local_env= env.clone()
+                local_env.setConfig( config )
+                local_env.setTargetArch( arch )
+                local_env.refresh()
+                task= self.addLibTask( local_env, lib_name, src_list, task_list )
+                task_group.append( task )
+        return  self.addGroupTask( env, task_name, task_group )
+
+    def addDllTasks( self, env, task_name, lib_name, src_list, config_list, arch_list, lib_func= None, task_list= None ):
+        if arch_list is None:
+            arch_list= env.getSupportArchList()
+        task_group= []
+        flatlib= self.global_env.FLATLIB
+        for config in config_list:
+            for arch in arch_list:
+                local_env= env.clone()
+                local_env.setConfig( config )
+                local_env.setTargetArch( arch )
+                local_env.addLibPaths( [local_env.getOutputPath( os.path.join(flatlib, 'lib') )] )
+                if lib_func:
+                    lib_func( env )
+                local_env.refresh()
+                task= self.addDllTask( local_env, lib_name, src_list, task_list )
+                task_group.append( task )
+        return  self.addGroupTask( env, task_name, task_group )
+
+    def addExeTasks( self, env, task_name, exe_name, src_list, config_list, arch_list= None, lib_func= None, task_list= None ):
+        if arch_list is None:
+            arch_list= env.getSupportArchList()
+        task_group= []
+        flatlib= self.global_env.FLATLIB
+        for config in config_list:
+            for arch in arch_list:
+                local_env= env.clone()
+                local_env.setConfig( config )
+                local_env.setTargetArch( arch )
+                local_env.addLibPaths( [local_env.getOutputPath( os.path.join(flatlib, 'lib') )] )
+                if lib_func:
+                    lib_func( env )
+                local_env.refresh()
+                target= local_env.getExeName( exe_name + '_' + local_env.getTargetArch() + '_' + local_env.getConfig() )
+                task= self.addExeTask( local_env, exe_name, src_list, task_list, target= target )
+                task_group.append( task )
+        return  self.addGroupTask( env, task_name, task_group )
+
+    #--------------------------------------------------------------------------
+
     def createSourceFile( self, env, file_name ):
         return  Depend.SourceFile( env, file_name )
 
@@ -347,7 +400,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.23 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.24 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
