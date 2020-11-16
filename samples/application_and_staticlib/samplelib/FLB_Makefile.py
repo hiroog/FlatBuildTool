@@ -1,4 +1,4 @@
-genv.SAMPLELIB_PATH= tool.findPath( '.' )
+genv.SAMPLELIB_PATH= '.'
 tool.execScript( '../DefaultSettings.py' )
 
 

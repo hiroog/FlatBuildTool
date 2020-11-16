@@ -78,7 +78,7 @@ class BuildTool:
         return  default_value
 
     def findPath( self, path, env= None ):
-        return  BuildUtility.FindPath2( path, self.getEnv( env ) )
+        return  BuildUtility.FindPath2( path, self.getEnv( env ) if env else None )
 
     def findPaths( self, path_list ):
         return  BuildUtility.FindPaths( path )
