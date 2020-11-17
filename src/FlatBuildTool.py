@@ -325,7 +325,7 @@ class BuildTool:
                 task_group.append( task )
         return  self.addGroupTask( env, task_name, task_group )
 
-    def addExeTasks( self, env, task_name, exe_name, src_list, config_list, arch_list= None, lib_func= None, task_list= None ):
+    def addExeTasks( self, env, task_name, exe_name, src_list, config_list, arch_list= None, lib_func= None, exe_func= None, task_list= None ):
         if arch_list is None:
             arch_list= env.getSupportArchList()
         task_group= []
@@ -338,8 +338,11 @@ class BuildTool:
                 local_env.addLibPaths( [local_env.getOutputPath( os.path.join(flatlib, 'lib') )] )
                 if lib_func:
                     lib_func( local_env )
+                if exe_func:
+                    target= exe_func( local_env )
+                else:
+                    target= local_env.getExeName( exe_name + '_' + local_env.getTargetArch() + '_' + local_env.getConfig() )
                 local_env.refresh()
-                target= local_env.getExeName( exe_name + '_' + local_env.getTargetArch() + '_' + local_env.getConfig() )
                 task= self.addExeTask( local_env, exe_name, src_list, task_list, target= target )
                 task_group.append( task )
         return  self.addGroupTask( env, task_name, task_group )
