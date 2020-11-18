@@ -96,10 +96,7 @@ def FindPath2( path, def_val= None ):
     if os.path.exists( result ):
         return  result
     if def_val is not None:
-        if not os.path.exists( def_val ):
-            Log.e( 'Not found', def_val )
         return  def_val
-    Log.e( 'Path not found', path, def_val )
     return  None
 
 
