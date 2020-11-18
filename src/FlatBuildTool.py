@@ -46,11 +46,13 @@ class BuildTool:
         Log.d( 'Load platform : ' + platform_name )
         self.platform_table[ platform_name ]= platform_env
 
-    def createTargetEnvironment( self, platform= None ):
-        if platform == None:
+    def createTargetEnvironment( self, platform= None, env= None ):
+        if platform is None:
             platform= self.global_env.getHostPlatform()
+        if env is None:
+            env= self.global_env
         if platform in self.platform_table:
-            return  self.platform_table[ platform ].TargetEnvironment( self, self.global_env )
+            return  self.platform_table[ platform ].TargetEnvironment( self, env )
         #raise BuildUtility.FLB_Error( 'platform "%s" not found' % platform )
         return  PlatformCommon.PlatformError( self )
 
@@ -403,7 +405,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.24 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.25 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )

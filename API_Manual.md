@@ -113,7 +113,7 @@ flmake コマンドを実行するとビルドできます。
 
 ### FlatBuildTool API - Platform 環境
 
-#### ```env= tool.createTargetEnvironment( platform= None )```
+#### ```env= tool.createTargetEnvironment( platform= None, env= None )```
 
 BuildTarget 用の Local な環境を作成します。親である genv の設定値を引き継ぎます。
 PlatformName を指定しない場合は、Build を行っている Host PC の環境と同一であるとみなします。
