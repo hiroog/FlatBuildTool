@@ -91,27 +91,31 @@ def GetFullPath( path ):
     return  os.path.abspath( path )
 
 
+
 def FindPath2( path, def_val= None ):
     result= os.path.abspath( path )
     if os.path.exists( result ):
         return  result
-    if def_val is not None:
-        return  def_val
+    if def_val:
+        if os.path.exists( def_val ):
+            return  def_val
     return  None
+
 
 
 def FindPath( path, env= None ):
     result= os.path.abspath( path )
     if os.path.exists( result ):
         return  result
-    if env is not None:
+    if env:
         result= GetEnv( env )
-        if result is not None:
+        if result:
             if not os.path.exists( result ):
                 Log.e( 'Not found', result )
             return  result
     Log.e( 'Path not found', path, env )
     return  None
+
 
 
 def FindPaths( path_list ):
@@ -123,6 +127,7 @@ def FindPaths( path_list ):
             return  result
     Log.e( 'Path not found ' + str(path_list) )
     return  None
+
 
 
 def GetTimeStamp( file_name ):
@@ -163,8 +168,6 @@ def CopyFilesPair( src_list ):
 
 def CopyFiles( src_list, dest_list ):
     CopyFilesPair( zip( src_list, dest_list ) )
-
-
 
 
 
