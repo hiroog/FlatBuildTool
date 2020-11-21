@@ -15,9 +15,12 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         if not self.getHostPlatform() == 'macOS':
             return
 
+        self.SDK_VERSION='14.2'
+
         self.CMD_CC= '/usr/bin/clang++'
         self.CMD_LINK= '/usr/bin/clang++'
         self.CMD_LIB= 'ar'
+        self.STD= self.getUserOption( 'STD', '17' )
 
         self.setDefault()
 
@@ -31,17 +34,16 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def setDefault( self ):
         self.setTargetPlatform( 'iOS' )
-        self.setTargetArch( 'arm64' )
-        self.SDK_PATH= '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS11.1.sdk'
+        self.setTargetArch( 'arm64e' )
+        self.SDK_PATH= '/Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk'
 
         self.setConfig( 'Debug' )
-        self.addCCFlags( '-Wall'.split() )
-        self.addCCFlags( '-fno-rtti -fno-exceptions -ffast-math'.split() )
+        self.addCCFlags( '-Wall -fno-rtti -fno-exceptions -ffast-math'.split() )
         self.addCCFlags( '-fmessage-length=0 -Wno-trigraphs -Wreturn-type'.split() )
         self.addCCFlags( '-fmacro-backtrace-limit=0 -fdiagnostics-show-note-include-stack'.split() )
         #self.addCCFlags( '-fmodules -gmodules'.split() )
         self.addCCFlags( '-fpascal-strings -fno-common -fstrict-aliasing -g -fembed-bitcode-marker'.split() )
-        self.addCCFlags( '-miphoneos-version-min=11.0'.split() )
+        self.addCCFlags( ['-miphoneos-version-min='+self.SDK_VERSION ] )
         self.addCCFlags( ['-isysroot', self.SDK_PATH] )
 
         self.OBJC_FLAGS= '-fobjc-arc -DOBJC_OLD_DISPATCH_PROTOTYPES=0'.split()
@@ -50,9 +52,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.refresh()
 
-
     #--------------------------------------------------------------------------
-
 
     def setupCCFlags( self ):
 
@@ -65,9 +65,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
 
         table_arch= {
-            'arm7':    '-arch armv7',
-            'arm7s':   '-arch armv7s',
-            'arm64':   '-arch arm64',
+            'arm7':    '-arch armv7',   # vfpv3
+            'arm7s':   '-arch armv7s',  # vfpv4
+            'arm7k':   '-arch armv7k',  # 64bit armv7a
+            'arm64':   '-arch arm64',   # armv8a
+            'arm64e':  '-arch arm64e',  # armv8.3a
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -76,7 +78,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             self.CC_FLAGS_R.append( '-I' + inc )
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
+    #--------------------------------------------------------------------------
 
+    def getDllName( self, lib_name ):
+        return  'lib' + lib_name + '.dylib'
 
     #--------------------------------------------------------------------------
 
@@ -88,13 +93,15 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for src in src_list:
             base,ext= os.path.splitext( src.lower() )
             if ext == '.m':
-                command.extend( '-x objective-c -std=gnu11'.split() )
+                command.extend( '-x objective-c -std=gnu17'.split() )
                 command.extend( self.OBJC_FLAGS );
             elif ext == '.mm':
-                command.extend( '-x objective-c++ -std=gnu++14 -stdlib=libc++'.split() )
+                command.extend( '-x objective-c++ -stdlib=libc++'.split() )
+                command.extend( ['-std=c++'+self.STD] )
                 command.extend( self.OBJC_FLAGS );
             else:
-                command.extend( '-x c++ -std=gnu++14 -stdlib=libc++'.split() )
+                command.extend( '-x c++ -stdlib=libc++'.split() )
+                command.extend( ['-std=gnu++'+self.STD] )
             command.append( src )
         command.append( '-o' )
         command.append( target )
@@ -103,6 +110,17 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def getBuildCommand_Link( self, target, src_list ):
         command= []
         command.append( self.CMD_CC )
+        command.append( '-o' )
+        command.append( target )
+        for src in src_list:
+            command.append( src )
+        command.extend( self.LINK_FLAGS_R )
+        return  command
+
+    def getBuildCommand_Link( self, target, src_list ):
+        command= []
+        command.append( self.CMD_CC )
+        command.append( '-dynamiclib' )
         command.append( '-o' )
         command.append( target )
         for src in src_list:
@@ -123,18 +141,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         command.extend( self.LIB_FLAGS_R )
         return  command
 
-
-
-
-
-
     #--------------------------------------------------------------------------
 
     def getSupportArchList( self ):
-        return  [ 'arm64' ]
-        #return  [ 'arm64', 'arm7', 'arm7s' ]
-
-
-
+        return  [ 'arm64', 'arm64e' ]
+        #return  [ 'arm64', 'arm64e', 'arm7', 'arm7s' ]
+        #return  [ 'arm64', 'arm64e', 'arm7', 'arm7s', 'x64', 'x86', 'arm7k' ]
 
 

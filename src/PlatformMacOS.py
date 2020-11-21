@@ -34,7 +34,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.setTargetPlatform( 'macOS' )
 
         self.setConfig( 'Debug' )
-        #self.addCCFlags( '-Wall -std=gnu++14 -fno-rtti -fno-exceptions -ffast-math'.split() )
         self.addCCFlags( '-Wall -fno-rtti -fno-exceptions -ffast-math'.split() )
         self.addCCFlags( '-fmessage-length=0 -pipe -Wno-trigraphs -Wreturn-type -gdwarf-2'.split() )
         self.addCCFlags( ['-DFLB_TARGET_MACOS=1'] )
@@ -51,7 +50,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.CC_FLAGS_R= []
         table_config= {
-                'Debug'   : "-O0 -D_DEBUG",
+                'Debug'   : "-O0 -D_DEBUG -DDEBUG=1",
                 'Release' : "-Os -O3 -DNDEBUG",
                 'Retail'  : "-Os -O3 -DNDEBUG -DFLB_RETAIL=1",
             }
@@ -136,5 +135,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             command.append( src )
         command.extend( self.LIB_FLAGS_R )
         return  command
+
+    #--------------------------------------------------------------------------
+
+    def getSupportArchList( self ):
+        return  [ 'x64' ]
+        #return  [ 'x64', 'arm64' ]
 
 
