@@ -33,11 +33,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt ARM7FP=neon-vfpv4
         # or 'ARM7FP neon-vfpv4' in local_config.txt
         self.ARM7FP= self.getUserOption( 'ARM7FP', 'neon' )
-        # --opt ARM8ARCH=armv8-a+crypto
-        # --opt ARM8ARCH=armv8.2-a+crypto+fp16
-        # --opt ARM8ARCH=armv8.3-a+crypto+fp16
-        # or 'ARM8ARCH armv8.2-a+crypto+fp16' in local_config.txt
-        self.ARM8ARCH= self.getUserOption( 'ARM8ARCH', 'armv8-a+crypto' )
+        # --opt ARM8ARCH=armv8-a+simd+crypto
+        # --opt ARM8ARCH=armv8.2-a+simd+crypto+fp16
+        # --opt ARM8ARCH=armv8.3-a+simd+crypto+fp16+dotprod
+        # or 'ARM8ARCH armv8.2-a+simd+crypto+fp16' in local_config.txt
+        self.ARM8ARCH= self.getUserOption( 'ARM8ARCH', 'armv8-a+simd+crypto' )
         # --opt HOST_ARCH=x86
         # or 'HOST_ARCH x86' in local_config.txt
         host_arch= self.getUserOption( 'HOST_ARCH', None )

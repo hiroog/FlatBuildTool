@@ -22,9 +22,9 @@
 #ARM7ABI hard
 #ARM7ABI softfp
 #ARM7ABI soft
-#ARM8ARCH armv8-a+crypto
-#ARM8ARCH armv8.2-a+crypto+fp16
-#ARM8ARCH armv8.3-a+crypto+fp16
+#ARM8ARCH armv8-a+simd+crypto
+#ARM8ARCH armv8.2-a+simd+crypto+fp16
+#ARM8ARCH armv8.3-a+simd+crypto+fp16+dotprod
 #HOST_ARCH x86
 #SSE AVX512
 #SSE AVX2
