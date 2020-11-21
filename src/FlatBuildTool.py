@@ -313,13 +313,11 @@ class BuildTool:
         if arch_list is None:
             arch_list= env.getSupportArchList()
         task_group= []
-        flatlib= self.global_env.FLATLIB
         for config in config_list:
             for arch in arch_list:
                 local_env= env.clone()
                 local_env.setConfig( config )
                 local_env.setTargetArch( arch )
-                local_env.addLibPaths( [local_env.getOutputPath( os.path.join(flatlib, 'lib') )] )
                 if lib_func:
                     lib_func( local_env )
                 local_env.refresh()
@@ -331,13 +329,11 @@ class BuildTool:
         if arch_list is None:
             arch_list= env.getSupportArchList()
         task_group= []
-        flatlib= self.global_env.FLATLIB
         for config in config_list:
             for arch in arch_list:
                 local_env= env.clone()
                 local_env.setConfig( config )
                 local_env.setTargetArch( arch )
-                local_env.addLibPaths( [local_env.getOutputPath( os.path.join(flatlib, 'lib') )] )
                 if lib_func:
                     lib_func( local_env )
                 if exe_func:
@@ -405,7 +401,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.26 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.27 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
