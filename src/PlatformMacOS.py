@@ -63,8 +63,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         elif sse == 'AVX2': ### Haswell
             avx_opt= ' -mavx2 -mfma'
         table_arch= {
-            'x86':   '-m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c' + avx_opt,
-            'x64':   '-m64              -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c' + avx_opt,
+            'x86':   '-arch i386 -m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c' + avx_opt,
+            'x64':   '-arch x86_64 -m64            -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c' + avx_opt,
+            'arm64': '-arch arm64',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -139,7 +140,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     #--------------------------------------------------------------------------
 
     def getSupportArchList( self ):
-        return  [ 'x64' ]
-        #return  [ 'x64', 'arm64' ]
+        return  [ 'x64', 'arm64' ]
+        #return  [ 'x64' ]
+        #return  [ 'arm64' ]
 
 
