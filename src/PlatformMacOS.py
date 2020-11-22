@@ -140,7 +140,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     #--------------------------------------------------------------------------
 
     def getSupportArchList( self ):
-        return  [ 'x64', 'arm64' ]
+        return  [ self.getHostArch() ]
+        #return  [ 'x64', 'arm64' ]
         #return  [ 'x64' ]
         #return  [ 'arm64' ]
 
