@@ -65,11 +65,12 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
 
         table_arch= {
-            'arm7':    '-arch armv7',   # vfpv3
-            'arm7s':   '-arch armv7s',  # vfpv4
-            'arm7k':   '-arch armv7k',  # 64bit armv7a
-            'arm64':   '-arch arm64',   # armv8a
-            'arm64e':  '-arch arm64e',  # armv8.3a
+            'arm7':     '-arch armv7',    # vfpv3
+            'arm7s':    '-arch armv7s',   # vfpv4
+            'arm7k':    '-arch armv7k',   # 64bit armv7a
+            'arm64_32': '-arch arm64_32', # armv8a
+            'arm64':    '-arch arm64',    # armv8a
+            'arm64e':   '-arch arm64e',   # armv8.3a
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -142,10 +143,17 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         return  command
 
     #--------------------------------------------------------------------------
+    # iOS/iPadOS: arm64e arm64 (arm7s, arm7, arm6)
+    # watchOS:    arm64_32 arm7k
+    #  armv7s = Apple A6(vfpv4)
+    #  arm64  = Apple A7(armv8a)
+    #  arm64e = Apple A12(armv8.3a)
+    #  armv7k = Apple S1(armv7a)
+    #  arm64_32 = Apple S4(armv8.3a)
 
     def getSupportArchList( self ):
         return  [ 'arm64', 'arm64e' ]
         #return  [ 'arm64', 'arm64e', 'arm7', 'arm7s' ]
-        #return  [ 'arm64', 'arm64e', 'arm7', 'arm7s', 'x64', 'x86', 'arm7k' ]
+        #return  [ 'arm64', 'arm64e', 'arm7', 'arm7s', 'x64', 'x86', 'arm7k', 'arm64_32' ]
 
 

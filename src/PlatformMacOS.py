@@ -139,6 +139,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         return  command
 
     #--------------------------------------------------------------------------
+    # macOS Intel   : x64 (x86)
+    # macOS Apple M1: arm64
 
     def getSupportArchList( self ):
         return  [ 'x64', 'arm64' ]
