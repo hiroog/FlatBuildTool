@@ -6,17 +6,15 @@ import  PlatformLinux
 import  PlatformAndroid
 import  PlatformMacOS
 import  PlatformIOS
-#import  PlatformCS
+import  PlatformWatchOS
 #import  PlatformTVOS
-#import  PlatformWatchOS
 
 tool.addPlatform( 'Windows',    PlatformWindows )
 tool.addPlatform( 'Linux',      PlatformLinux )
 tool.addPlatform( 'Android',    PlatformAndroid )
 tool.addPlatform( 'macOS',      PlatformMacOS )
 tool.addPlatform( 'iOS',        PlatformIOS )
-#tool.addPlatform( 'CS',        PlatformCS )
+tool.addPlatform( 'watchOS',    PlatformWatchOS )
 #tool.addPlatform( 'tvOS',      PlatformTVOS )
-#tool.addPlatform( 'watchOS',   PlatformWatchOS )
 
 
