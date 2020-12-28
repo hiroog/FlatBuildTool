@@ -130,7 +130,7 @@ PlatformName を指定しない場合は、Build を行っている Host PC の�
 | Windows          | Windows                 | x64, x86, arm64              |
 | Linux            | Linux/WSL/Termux/macOS  | x64, x86, arm64, arm7, arm6  |
 | macOS            | macOS                   | x64, arm64, arm64e           |
-| iOS/iPadOS       | macOS                   | arm64, arm64e, x64           |
+| iOS/iPadOS       | macOS                   | arm64, arm64e, arm7, x64     |
 | watchOS          | macOS                   | arm7k, arm64_32, x86, x64    |
 | tvOS             | macOS                   | arm64, x64                   |
 | Android          | Windows/Linux/macOS     | arm64, arm7, x64, x86        |
@@ -144,7 +144,7 @@ CPU Architecture 名は BuildSystem 内部で統一しています。対応は�
 | arm64              | arm64            | aarch64         | arm64       | arm64       |
 | arm64e             | --               | --              | arm64e      | --          |
 | arm64_32           | --               | --              | arm64_32    | --          |
-| arm7               | (arm)            | armv7l/armv7hf  | (armv7)     | armv7-a     |
+| arm7               | (arm)            | armv7l/armv7hf  | armv7       | armv7-a     |
 | arm7s              | --               | --              | (armv7s)    | --          |
 | arm7k              | --               | --              | armv7k      | --          |
 | arm6               | --               | armv6l          | (armv6)     | --          |

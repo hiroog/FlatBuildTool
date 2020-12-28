@@ -107,6 +107,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         if self.getTargetPlatform() == 'iOS':
             self.CC_FLAGS_R.append( '-miphoneos-version-min='+self.SDK_VERSION )
         elif self.getTargetPlatform() == 'iOSs':
+            self.CC_FLAGS_R.extend( [ '-target', table_arch_name[self.getTargetArch()] + '-apple-ios' + self.SDK_VERSION + '-simulator' ] )
             self.CC_FLAGS_R.append( '-miphoneos-version-min='+self.SDK_VERSION )
         elif self.getTargetPlatform() == 'watchOS':
             self.CC_FLAGS_R.append( '-mwatchos-version-min='+self.SDK_VERSION )
@@ -116,6 +117,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         elif self.getTargetPlatform() == 'tvOS':
             self.CC_FLAGS_R.append( '-mtvos-version-min='+self.SDK_VERSION )
         elif self.getTargetPlatform() == 'tvOSs':
+            self.CC_FLAGS_R.extend( [ '-target', table_arch_name[self.getTargetArch()] + '-apple-tvos' + self.SDK_VERSION + '-simulator' ] )
             self.CC_FLAGS_R.append( '-mtvos-version-min='+self.SDK_VERSION )
 
         self.CC_FLAGS_R.extend( ['-isysroot', self.SDK_PATH] )
