@@ -189,6 +189,9 @@ class TargetEnvironmentCommon:
     def setApiLevel( self, api ):
         pass
 
+    def setApiName( self, api ):
+        pass
+
     #--------------------------------------------------------------------------
 
     def setObjDir( self, path ):
@@ -340,6 +343,10 @@ class TargetEnvironmentCommon:
 
     def getBuildCommand_Lib( self, target, src_list ):
         raise   BuildUtility.FLB_Error( 'not implement: getBuildCommand_Lib' )
+        return  None
+
+    def getBuildCommand_Lipo( self, target, src_list ):
+        raise   BuildUtility.FLB_Error( 'not implement: getBuildCommand_Lipo' )
         return  None
 
     def createSourceFile( self, file_name ):

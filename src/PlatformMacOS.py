@@ -18,6 +18,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_CC= '/usr/bin/clang++'
         self.CMD_LINK= '/usr/bin/clang++'
         self.CMD_LIB= 'ar'
+        self.CMD_LIPO= 'lipo'
         self.STD= self.getUserOption( 'STD', '17' )
 
         self.setDefault()
@@ -64,9 +65,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             avx_opt= ' -mavx2 -mfma'
         table_arch= {
             'x86':   '-arch i386 -m32 -mmmx -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mf16c' + avx_opt,
-            'x64':   '-arch x86_64 -m64            -msse3 -mssse3 -msse4.1 -maes -mavx -mf16c' + avx_opt,
+            'x64':   '-arch x86_64 -m64            -msse3 -mssse3 -msse4.1 -msse4.2 -maes -mavx -mf16c' + avx_opt,
             #'x64':   '-arch x86_64 -m64 -msse3 -mssse3 -msse4.2 -maes',  # Apple M1 x86_64 Rosetta
             'arm64': '-arch arm64',
+            'universal': '',
             }
         self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
@@ -136,6 +138,16 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for src in src_list:
             command.append( src )
         command.extend( self.LIB_FLAGS_R )
+        return  command
+
+    def getBuildCommand_Lipo( self, target, src_list ):
+        command= []
+        command.append( self.CMD_LIPO )
+        command.append( '-create' )
+        command.append( '-output' )
+        command.append( target )
+        for src in src_list:
+            command.append( src )
         return  command
 
     #--------------------------------------------------------------------------

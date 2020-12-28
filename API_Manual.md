@@ -125,30 +125,33 @@ PlatformName を指定しない場合は、Build を行っている Host PC の�
 
 デフォルトでサポートしている Platform
 
-| platform        | 対応している Host       | 対応 Architecture      |
-|:--              |:--                      |:--                     |
-| Windows         | Windows                 | x64, x86, arm64        |
-| Linux           | Linux/WSL/Termux/macOS  | x64, x86, arm64, arm7, arm6  |
-| macOS           | macOS                   | x64, arm64             |
-| Android         | Windows/Linux/macOS     | arm64, arm7, x64, x86, mips64, mips  |
+| platform         | 対応している Host       | 対応 Architecture            |
+|:--               |:--                      |:--                           |
+| Windows          | Windows                 | x64, x86, arm64              |
+| Linux            | Linux/WSL/Termux/macOS  | x64, x86, arm64, arm7, arm6  |
+| macOS            | macOS                   | x64, arm64, arm64e           |
+| iOS/iPadOS       | macOS                   | arm64, arm64e, x64           |
+| watchOS          | macOS                   | arm7k, arm64_32, x86, x64    |
+| tvOS             | macOS                   | arm64, x64                   |
+| Android          | Windows/Linux/macOS     | arm64, arm7, x64, x86        |
 
 CPU Architecture 名は BuildSystem 内部で統一しています。対応は下記の通り。括弧表記は Platform 内でのサポート終了。
 
 | FlatBuildTool 名   | Windows          | Linux           | macOS/iOS   | Android     |
 |:--                 |:--               |:--              |:--          |:--          |
 | x64                | x64              | x86_64/AMD64    | x86_64      | x86_64      |
-| x86                | x86              | i686            | (i386)      | i686        |
+| x86                | x86              | i686            | i386        | i686        |
 | arm64              | arm64            | aarch64         | arm64       | arm64       |
+| arm64e             | --               | --              | arm64e      | --          |
+| arm64_32           | --               | --              | arm64_32    | --          |
 | arm7               | (arm)            | armv7l/armv7hf  | (armv7)     | armv7-a     |
-| arm7s              | --               | --              | armv7s      | --          |
-| arm6               | --               | armv6l          | --          | --          |
+| arm7s              | --               | --              | (armv7s)    | --          |
+| arm7k              | --               | --              | armv7k      | --          |
+| arm6               | --               | armv6l          | (armv6)     | --          |
 | (arm5)             | --               | --              | --          | (armv5te)   |
 | (mips64)           | --               | --              | --          | (mips64)    |
 | (mips)             | --               | --              | --          | (mips)      |
 
-
-* Linux armv6 = Raspberry Pi
-* macOS armv7s = watchOS
 
 
 #### ```tool.addPlatform( platform_name= HostPlatform )```
@@ -211,6 +214,15 @@ tool.addExeTask( env, src_list= [ 'main.cpp' ], target= 'test_' + env.getConfig(
 
 動的 Link ライブラリ/共有ライブラリをビルドするためのタスクを登録します。
 依存する Task がある場合 task_list を与えることができます。task_list は省略できます。
+
+
+#### ```task= tool.addLipoTask( env, name, lib_list, task_list= None, target= None )```
+
+macOS や iOS の Unviersal Library 、Universal Application をビルドするために使用します。
+各 architecture 毎の library や binary を作成するための task を task_list で渡してください。
+またファイル名を lib_list で与えます。
+application や dylib をビルドする場合は直接 target で出力ファイル名を指定する必要があります。
+
 
 
 #### ```task= tool.addGroupTask( env, task_name, task_list )```

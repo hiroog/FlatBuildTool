@@ -222,6 +222,22 @@ class BuildTool:
         self.addTask( abs_target, task )
         return  task
 
+
+    def addLipoTask( self, env, name, lib_list, task_list= None, target= None ):
+        if target is None:
+            target= env.getLibPath( name )
+        abs_target= self.getGenericPath( target )
+        task= self.findTask( abs_target )
+        if task != None:
+            return  task
+        if task_list is None:
+            task_list= []
+        command= env.getBuildCommand_Lipo( abs_target, lib_list )
+        task= Depend.ExeTask( env, abs_target, lib_list, command, task_list )
+        self.addTask( abs_target, task )
+        return  task
+
+
 #    def addDllTask( self, env, target, src_list ):
 #        dll_target= env.getDllPath( target )
 #        abs_target= self.getGenericPath( dll_target )
@@ -307,6 +323,31 @@ class BuildTool:
                 local_env.refresh()
                 task= self.addLibTask( local_env, lib_name, src_list, task_list )
                 task_group.append( task )
+        return  self.addGroupTask( env, task_name, task_group )
+
+    def addLipoTasks( self, env, task_name, lib_name, src_list, config_list, arch_list= None, task_list= None ):
+        if arch_list is None:
+            arch_list= env.getSupportArchList()
+        task_group= []
+        for config in config_list:
+            task_arch= []
+            name_arch= []
+            for arch in arch_list:
+                local_env= env.clone()
+                local_env.setConfig( config )
+                local_env.setTargetArch( arch )
+                local_env.refresh()
+                task= self.addLibTask( local_env, lib_name, src_list, task_list )
+                task_arch.append( task )
+                name_arch.append( task.target )
+            if task_list:
+                task_arch.extend( task_list )
+            local_env= env.clone()
+            local_env.setConfig( config )
+            local_env.setTargetArch( 'universal' )
+            local_env.refresh()
+            task= self.addLipoTask( local_env, lib_name, name_arch, task_arch )
+            task_group.append( task )
         return  self.addGroupTask( env, task_name, task_group )
 
     def addDllTasks( self, env, task_name, lib_name, src_list, config_list, arch_list, lib_func= None, task_list= None ):
@@ -401,7 +442,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.29 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.30 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
