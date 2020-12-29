@@ -213,12 +213,14 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         platform= self.getTargetPlatform()
         if platform == 'iOS':
             return  [ 'arm64', 'arm64e' ]
+            #return  [ 'arm64', 'arm64e', 'arm7' ]
         elif platform == 'tvOS':
             return  [ 'arm64', ]
         elif platform == 'watchOS':
             return  [ 'arm64_32', 'arm7k' ]
         elif platform == 'iOSs':
-            return  [ 'arm64', 'x64'  ]
+            return  [ 'arm64', 'x64' ]
+            #return  [ 'arm64', 'x64', 'x86' ]
         elif platform == 'tvOSs':
             return  [ 'arm64', 'x64' ]
         elif platform == 'watchOSs':
