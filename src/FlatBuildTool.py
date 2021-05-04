@@ -311,7 +311,7 @@ class BuildTool:
 
     #--------------------------------------------------------------------------
 
-    def addLibTasks( self, env, task_name, lib_name, src_list, config_list, arch_list= None, task_list= None ):
+    def addLibTasks( self, env, task_name, lib_name, src_list, config_list, arch_list= None, inc_func= None, task_list= None ):
         if arch_list is None:
             arch_list= env.getSupportArchList()
         task_group= []
@@ -320,12 +320,14 @@ class BuildTool:
                 local_env= env.clone()
                 local_env.setConfig( config )
                 local_env.setTargetArch( arch )
+                if inc_func:
+                    inc_func( local_env )
                 local_env.refresh()
                 task= self.addLibTask( local_env, lib_name, src_list, task_list )
                 task_group.append( task )
         return  self.addGroupTask( env, task_name, task_group )
 
-    def addLipoTasks( self, env, task_name, lib_name, src_list, config_list, arch_list= None, task_list= None ):
+    def addLipoTasks( self, env, task_name, lib_name, src_list, config_list, arch_list= None, inc_func= None, task_list= None ):
         if arch_list is None:
             arch_list= env.getSupportArchList()
         task_group= []
@@ -336,6 +338,8 @@ class BuildTool:
                 local_env= env.clone()
                 local_env.setConfig( config )
                 local_env.setTargetArch( arch )
+                if inc_func:
+                    inc_func( local_env )
                 local_env.refresh()
                 task= self.addLibTask( local_env, lib_name, src_list, task_list )
                 task_arch.append( task )
@@ -442,7 +446,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.30 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.31 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
