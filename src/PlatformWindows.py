@@ -61,20 +61,25 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
 
     def findVSFromDir( self, version ):
-        if self.getHostArch() == 'x64':
-            X86_PROGRAMFILES= os.environ['ProgramFiles(x86)']
-        else:
-            X86_PROGRAMFILES= os.environ['ProgramFiles']
+        program_files= os.environ['ProgramFiles']
         vc_search_path= [
-                os.path.join( X86_PROGRAMFILES, 'Microsoft Visual Studio', version, 'Professional/VC' ),
-                os.path.join( X86_PROGRAMFILES, 'Microsoft Visual Studio', version, 'Community/VC' ),
-                os.path.join( X86_PROGRAMFILES, 'Microsoft Visual Studio', version, 'Preview/VC' ),
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Professional/VC' ),
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Community/VC' ),
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Preview/VC' ),
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Enterprise/VC' ),
             ]
+        if self.getHostArch() == 'x64':
+            program_files= os.environ['ProgramFiles(x86)']
+            vc_search_path.extend( [
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Professional/VC' ),
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Community/VC' ),
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Preview/VC' ),
+                os.path.join( program_files, 'Microsoft Visual Studio', version, 'Enterprise/VC' ),
+                ] )
         path= self.findPath( vc_search_path )
         if path is not None:
             return  os.path.dirname( path )
         return  None
-
 
     def findVSDir( self, version ):
         try:
@@ -108,6 +113,13 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt VC=20xx
         # or 'VC 20xx' in local_config.txt
         vc= int(self.getUserOption( 'VC', '2099' ))
+
+        if vc >= 2022:
+            path= self.findVSFromDir( '2022' )
+            if path is not None:
+                self.MSVC_DIR= path
+                self.MSVC_VERSION= 2022
+                return
 
         if vc >= 2019:
             path= self.findVSDir( '16.0' )
