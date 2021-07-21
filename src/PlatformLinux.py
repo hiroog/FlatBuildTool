@@ -75,6 +75,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         #self.addCCFlags( '-funwind-tables -fstack-protector-strong -no-canonical-prefixes'.split() )
 
         self.addLibraries( [ 'stdc++', 'pthread', 'm'] )
+        self.addIgnorePaths( [ '/usr/' ] )
 
         self.refresh()
 

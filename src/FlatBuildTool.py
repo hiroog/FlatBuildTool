@@ -446,7 +446,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.31 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.40 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )

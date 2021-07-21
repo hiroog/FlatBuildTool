@@ -326,11 +326,19 @@ class SourceFileC( FileBase ):
         self.parsed= False
         self.parseInclude()
 
+    def is_system_path( self, include_file ):
+        path= os.path.dirname( include_file )
+        for sys_path in self.env.IGNORE_INCLUDE_PATH:
+            if path.startswith( sys_path ):
+                #print( 'skip', include_file )
+                return  False
+        return  True
+
     def parseInclude( self ):
         if self.parsed:
             return
         self.src_list= []
-        with open( self.target, 'r', encoding= 'UTF=8' ) as fi:
+        with open( self.target, 'r', encoding='UTF-8', errors='ignore' ) as fi:
             for line in fi:
                 pat= self.pat_include.search( line )
                 if pat == None:
@@ -341,7 +349,8 @@ class SourceFileC( FileBase ):
                     #print( 'parse inc=' + include_file )
                     include_file= self.env.searchIncludePath( self.target, include_file )
                     if include_file != None:
-                        self.src_list.append( include_file )
+                        if self.is_system_path( os.path.dirname( include_file ) ):
+                            self.src_list.append( include_file )
                     else:
                         # ignore
                         pass

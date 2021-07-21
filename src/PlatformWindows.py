@@ -180,6 +180,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addLibFlags( ['-nologo'] )
         self.addLinkFlags( ['-nologo'] )
 
+        self.addIgnorePaths( [
+               os.environ['ProgramFiles'],
+            ] )
+
         self.refresh()
 
 

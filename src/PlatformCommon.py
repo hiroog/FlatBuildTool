@@ -52,6 +52,7 @@ class TargetEnvironmentCommon:
         self.USER_OPTION= {}
 
         self.EXE_NAME_FUNC= None
+        self.IGNORE_INCLUDE_PATH= []
 
         if parent != None:
             inherit_attribute= [
@@ -74,6 +75,7 @@ class TargetEnvironmentCommon:
                 if data != None:
                     setattr( self, attr, copy.deepcopy(data) )
             self.USER_OPTION= parent.USER_OPTION
+            self.IGNORE_INCLUDE_PATH= parent.IGNORE_INCLUDE_PATH
 
     def summary( self ):
         Log.p( 'HostArch = ' + self.getHostArch() )
@@ -229,6 +231,9 @@ class TargetEnvironmentCommon:
 
     def addLibraries( self, libs ):
         self.LINK_LIBS.extend( libs )
+
+    def addIgnorePaths( self, paths ):
+        self.IGNORE_INCLUDE_PATH.extend( paths )
 
     #--------------------------------------------------------------------------
 
