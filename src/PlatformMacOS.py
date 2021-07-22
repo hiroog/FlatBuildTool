@@ -42,6 +42,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.OBJC_FLAGS= '-fobjc-arc -DOBJC_OLD_DISPATCH_PROTOTYPES=0'.split()
 
         self.addLibraries( [ 'stdc++', 'pthread', 'm'] )
+        self.addIgnorePaths( [ '/usr/', '/Applications/' ] )
 
         self.refresh()
 
