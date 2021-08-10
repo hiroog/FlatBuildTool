@@ -11,6 +11,8 @@
 #SSE SSSE3
 #SSE SSE3
 #ARM 1
+#MSLIB MT
+#MSLIB MD
 # -- Linux options
 #CC clang
 #CC clang-6

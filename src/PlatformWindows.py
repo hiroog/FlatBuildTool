@@ -309,10 +309,12 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def setupCCFlags( self ):
 
         self.CC_FLAGS_R= []
+        # --opt MSLIB=MT
+        mslib= self.getUserOption( 'MSLIB', 'MD' )
         table_config= {
-                'Debug'   : "-D_DEBUG -MDd -Od",
-                'Release' : "-DNDEBUG -MD -O2 -Oi -Ot -Ob2",
-                'Retail'  : "-DNDEBUG -MD -O2 -Oi -Ot -Ob2 -DFLB_RETAIL=1",
+                'Debug'   : '-D_DEBUG -'+mslib+'d -Od',
+                'Release' : '-DNDEBUG -'+mslib+' -O2 -Oi -Ot -Ob2',
+                'Retail'  : '-DNDEBUG -'+mslib+' -O2 -Oi -Ot -Ob2 -DFLB_RETAIL=1',
             }
         self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
         self.CC_FLAGS_R.append( '-Fd' + self.getOutputPath( self.OUTPUT_OBJ_DIR, 'vc.pdb'  ) )
