@@ -517,7 +517,6 @@ def main( argv ):
     if default_task:
         action_list.append( default_task )
     if makefile != None:
-        result_code= 0
         start_time_real= time.perf_counter()
         try:
             tool= BuildTool( job_count, opt_dict )
@@ -528,19 +527,18 @@ def main( argv ):
                 for task_name in action_list:
                     actions= task_name.split(',')
                     tool.runSequentialTask( tool.nameToTaskList( actions ) )
-            result_code= tool.wait()
+            tool.wait()
             if dump_flag:
                 tool.dump()
+            if tool.result_code:
+                return  tool.result_code
         except Exception as e:
             if not debug_flag:
                 print( e )
             else:
                 raise
         finally:
-            pass
-        Log.p( 'time %f' % ( time.perf_counter() - start_time_real ) )
-        if result_code:
-            return  result_code
+            Log.p( 'time %f' % ( time.perf_counter() - start_time_real ) )
     else:
         usage()
 
