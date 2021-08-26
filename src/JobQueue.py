@@ -109,6 +109,7 @@ class ThreadPool:
             thread.join()
         with self.lock:
             self.thread_list= []
+        return  self.job_queue.result_code
 
     def addJob( self, job ):
         if job == None:

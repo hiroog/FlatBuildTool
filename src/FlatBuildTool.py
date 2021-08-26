@@ -24,6 +24,7 @@ class BuildTool:
         self.global_env.USER_OPTION= option
         self.platform_table= {}
         self.dir_stack= []
+        self.result_code= 0
 
         #script_bin_path= os.path.dirname(__file__)
         script_bin_path= os.path.dirname(sys.argv[0])
@@ -70,7 +71,7 @@ class BuildTool:
 
 
     def wait( self ):
-        self.thread_pool.join()
+        self.result_code= self.thread_pool.join()
 
     def getEnv( self, name, default_value= None ):
         if name in self.global_env.USER_OPTION:
@@ -446,7 +447,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.40 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.41 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
@@ -461,7 +462,7 @@ def usage():
     sys.exit( 0 )
 
 
-def main():
+def main( argv ):
     makefile= 'FLB_Makefile.py'
     default_task= 'build'
     debug_flag= False
@@ -471,29 +472,29 @@ def main():
     job_count= 0
     action_list= []
     opt_dict= load_config()
-    acount= len( sys.argv )
+    acount= len( argv )
     ai= 1
     while ai < acount:
-        arg= sys.argv[ai]
+        arg= argv[ai]
         if arg[0] == '-':
             if arg == '-f':
                 ai+= 1
                 if ai < acount:
-                    makefile= sys.argv[ai]
+                    makefile= argv[ai]
             elif arg == '--env':
                 ai+= 1
                 if ai < acount:
-                    platform= sys.argv[ai]
+                    platform= argv[ai]
                 env_dump= True
             elif arg == '--opt':
                 ai+= 1
                 if ai < acount:
-                    opts= sys.argv[ai].split( '=' )
+                    opts= argv[ai].split( '=' )
                     opt_dict[opts[0]]= opts[1]
             elif arg == '--job':
                 ai+= 1
                 if ai < acount:
-                    job_count= int( sys.argv[ai] )
+                    job_count= int( argv[ai] )
             elif arg == '--debug':
                 debug_flag= True
                 Log.DebugLevel= 2
@@ -516,6 +517,7 @@ def main():
     if default_task:
         action_list.append( default_task )
     if makefile != None:
+        result_code= 0
         start_time_real= time.perf_counter()
         try:
             tool= BuildTool( job_count, opt_dict )
@@ -526,7 +528,7 @@ def main():
                 for task_name in action_list:
                     actions= task_name.split(',')
                     tool.runSequentialTask( tool.nameToTaskList( actions ) )
-            tool.wait()
+            result_code= tool.wait()
             if dump_flag:
                 tool.dump()
         except Exception as e:
@@ -537,12 +539,15 @@ def main():
         finally:
             pass
         Log.p( 'time %f' % ( time.perf_counter() - start_time_real ) )
+        if result_code:
+            return  result_code
     else:
         usage()
 
     Log.d( 'OK' )
+    return  0
 
 
 if __name__ == '__main__':
-    main()
+    sys.exit( main( sys.argv ) )
 
