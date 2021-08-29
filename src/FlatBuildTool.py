@@ -75,7 +75,7 @@ class BuildTool:
 
     def getEnv( self, name, default_value= None ):
         if name in self.global_env.USER_OPTION:
-            return  genv.global_env.USER_OPTION[name]
+            return  self.global_env.USER_OPTION[name]
         if name in os.environ:
             return  os.environ[name]
         return  default_value
@@ -447,7 +447,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.41 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.42 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )

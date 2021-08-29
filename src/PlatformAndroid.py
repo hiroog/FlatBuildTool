@@ -8,6 +8,7 @@ import  BuildUtility
 from BuildUtility import Log
 
 
+#   S  *31  Android 12.0
 #   R  *30  Android 11.0
 #   Q  *29  Android 10.0    MIDI
 #   P  *28  Android 9.0
@@ -53,15 +54,19 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.CMD_CC= 'clang++'
         self.CMD_LINK= 'clang++'
-        self.CMD_LIB= 'ar'
+        #self.CMD_LIB= 'ar'
+        self.CMD_LIB= 'llvm-ar'
 
         self.GCC_VERSION= '4.9'
         self.API_LEVEL= 24
         self.NDK_VERSION= self.getNDKVersion()
-        #print( 'NDK_VERSION = ' + str(self.NDK_VERSION) )
+        print( 'NDK_VERSION = ' + str(self.NDK_VERSION) )
 
         self.setDefault()
 
+        #self.summary()
+        #self.NDK_ROOT= None
+        #return
 
     def summary( self ):
         super().summary()
@@ -103,7 +108,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.CMD_CC= os.path.join( self.LLVM_TOOLCHAIN_ROOT, 'bin/clang++' )
         self.CMD_LINK= self.CMD_CC
-        self.CMD_LIB= self.CMD_CC
+        #self.CMD_LIB= self.CMD_CC
+        self.CMD_LIB= os.path.join( self.LLVM_TOOLCHAIN_ROOT, 'bin', 'llvm-ar' )
 
 
         self.setConfig( 'Debug' )
@@ -122,8 +128,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addIncludePaths( [
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/system/include' ),
-                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
-                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/include' ),
+                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
+                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/include' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gnu-libstdc++/4.9/include' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gabi++/include' ),
                 ] )
@@ -209,9 +215,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         return  None
 
 
-    def setupBinPath( self ):
-        super().setupBinPath()
-        self.CMD_LIB= os.path.join( self.GCC_TOOLCHAIN_ROOT, 'bin', self.getGCCCommandPrefix() + 'ar' )
+    #def setupBinPath( self ):
+    #    super().setupBinPath()
+    #    #self.CMD_LIB= os.path.join( self.GCC_TOOLCHAIN_ROOT, 'bin', self.getGCCCommandPrefix() + 'ar' )
 
 
     def setupCCFlags( self ):
@@ -239,8 +245,14 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         if self.getTargetArch() in target_isystem_table:
             isystem_arch= target_isystem_table[ self.getTargetArch() ]
 
-        self.CC_FLAGS_R.append( '--sysroot' )
-        self.CC_FLAGS_R.append( os.path.join( self.NDK_ROOT, 'sysroot' ) )
+
+        if self.NDK_VERSION >= 23:
+            self.CC_FLAGS_R.append( '--sysroot' )
+            self.CC_FLAGS_R.append( os.path.join( self.LLVM_TOOLCHAIN_ROOT, 'sysroot' ) )
+        else:
+            self.CC_FLAGS_R.append( '--sysroot' )
+            self.CC_FLAGS_R.append( os.path.join( self.NDK_ROOT, 'sysroot' ) )
+
 
         if self.NDK_VERSION >= 15:
             self.ISYSTEM_ROOT= os.path.join( self.NDK_ROOT, 'sysroot' )
@@ -251,7 +263,10 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             self.CC_FLAGS_R.append( '-isystem' )
             self.CC_FLAGS_R.append( os.path.join( self.ISYSTEM_ROOT, 'usr/include' ) )
 
+#C:\NBDATA\android-ndk-r23\toolchains\llvm\prebuilt\windows-x86_64\sysroot\usr\include\c++\v1
 
+        #self.CC_FLAGS_R.append( '-I' )
+        #self.CC_FLAGS_R.append( os.path.join( self.ISYSTEM_ROOT, 'usr/include/c++/v1' ) )
 
 
         table_config= {
