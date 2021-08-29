@@ -60,7 +60,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.GCC_VERSION= '4.9'
         self.API_LEVEL= 24
         self.NDK_VERSION= self.getNDKVersion()
-        print( 'NDK_VERSION = ' + str(self.NDK_VERSION) )
+        #print( 'NDK_VERSION = ' + str(self.NDK_VERSION) )
 
         self.setDefault()
 
@@ -125,11 +125,12 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addCCFlags( '-fno-diagnostics-color'.split() )
         self.addCCFlags( ['-DFLB_TARGET_ANDROID=1', '-DANDROID'] )
 
-        self.addIncludePaths( [
+        if self.NDK_VERSION < 23:
+            self.addIncludePaths( [
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/system/include' ),
-                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
-                    #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/include' ),
+                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/libcxx/include' ),
+                    os.path.join( self.NDK_ROOT, 'sources/cxx-stl/llvm-libc++/include' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gnu-libstdc++/4.9/include' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/gabi++/include' ),
                 ] )
