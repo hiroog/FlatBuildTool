@@ -141,7 +141,7 @@ def CopyFilesDir( src_list, dest_dir ):
     if not os.path.exists( dest_dir ):
         os.makedirs( dest_dir )
     for src in src_list:
-        dir,name= os.path.split( src )
+        _,name= os.path.split( src )
         dest_file= os.path.join( dest_dir, name )
         src_time= GetTimeStamp( src )
         dest_time= GetTimeStamp( dest_file )
@@ -155,7 +155,7 @@ def CopyFilesDir( src_list, dest_dir ):
 def CopyFilesPair( src_list ):
     for src,dest in src_list:
         dir,name= os.path.split( dest )
-        if not os.path.exists( dir ):
+        if dir and not os.path.exists( dir ):
             os.makedirs( dir )
         src_time= GetTimeStamp( src )
         dest_time= GetTimeStamp( dest )
