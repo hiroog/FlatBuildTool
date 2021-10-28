@@ -48,7 +48,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         if self.NDK_ROOT is None:
             return
 
-        #self.NDK_ROOT= tool.getEnv( 'NDK_ROOT' )
         if not os.path.exists( self.NDK_ROOT ):
             raise BuildUtility.FLB_Error( 'NDK not found ($NDK_ROOT=%s)' % self.NDK_ROOT )
 
@@ -125,7 +124,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.addCCFlags( '-fno-diagnostics-color'.split() )
         self.addCCFlags( ['-DFLB_TARGET_ANDROID=1', '-DANDROID'] )
 
-        if self.NDK_VERSION < 23:
+        if self.NDK_VERSION < 22:
             self.addIncludePaths( [
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/stlport/stlport' ),
                     #os.path.join( self.NDK_ROOT, 'sources/cxx-stl/system/include' ),
@@ -247,7 +246,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             isystem_arch= target_isystem_table[ self.getTargetArch() ]
 
 
-        if self.NDK_VERSION >= 23:
+        if self.NDK_VERSION >= 22:
             self.CC_FLAGS_R.append( '--sysroot' )
             self.CC_FLAGS_R.append( os.path.join( self.LLVM_TOOLCHAIN_ROOT, 'sysroot' ) )
         else:
