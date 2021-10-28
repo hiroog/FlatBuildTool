@@ -15,6 +15,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         super().__init__( tool, parent )
 
         self.EMSDK_ROOT= tool.getEnv( 'EMSDK' )
+        if not self.EMSDK_ROOT:
+            return
 
         self.setDefault()
 
