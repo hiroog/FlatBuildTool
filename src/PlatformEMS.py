@@ -39,8 +39,9 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_LIB= os.path.join( self.EMSDK_ROOT, 'upstream/emscripten/emar' )
 
         self.addLinkFlags( '-s WASM=1 -s INITIAL_MEMORY=268435456 -s ALLOW_MEMORY_GROWTH=1'.split() )
+        #self.addLinkFlags( '-s WASM=1 -s INITIAL_MEMORY=268435456'.split() )
         if 0:
-            self.addLinkFlags( '-s PTHREAD_POOL_SIZE=8 -pthread'.split() )
+            self.addLinkFlags( '-s PTHREAD_POOL_SIZE=128 -pthread'.split() )
             self.addCCFlags( '-pthread'.split() )
         self.addCCFlags( ['-DFLB_TARGET_EMS=1'] )
 
@@ -50,6 +51,12 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def setupCCFlags( self ):
         self.CC_FLAGS_R= []
+        table_config= {
+            'Debug'   : '-O0 -g -D_DEBUG',
+            'Release' : '-Os -g -O3 -DNDEBUG',
+            'Retail'  : '-Os -O3 -DNDEBUG -DFLB_RETAIL=1',
+            }
+        self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
         for inc in self.INCLUDE_PATH_R:
             self.CC_FLAGS_R.append( '-I' + inc )
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
