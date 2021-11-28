@@ -48,16 +48,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     #--------------------------------------------------------------------------
 
-    def setupCCFlags( self ):
-
-        self.CC_FLAGS_R= []
-        table_config= {
-                'Debug'   : "-O0 -D_DEBUG -DDEBUG=1",
-                'Release' : "-Os -O3 -DNDEBUG",
-                'Retail'  : "-Os -O3 -DNDEBUG -DFLB_RETAIL=1",
-            }
-        self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
-
+    def getArchFlags( self ):
         sse= self.getUserOption( 'SSE', 'AVX2' )
         avx_opt= ''
         if sse == 'AVX512': ### IceLake
@@ -71,12 +62,27 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             'arm64': '-arch arm64',
             'universal': '',
             }
-        self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
+        return  table_arch[ self.getTargetArch() ].split()
+
+    def setupCCFlags( self ):
+
+        self.CC_FLAGS_R= []
+        table_config= {
+                'Debug'   : "-O0 -D_DEBUG -DDEBUG=1",
+                'Release' : "-Os -O3 -DNDEBUG",
+                'Retail'  : "-Os -O3 -DNDEBUG -DFLB_RETAIL=1",
+            }
+        self.CC_FLAGS_R.extend( table_config[ self.getConfig() ].split() )
+        self.CC_FLAGS_R.extend( self.getArchFlags() )
 
         for inc in self.INCLUDE_PATH_R:
             #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
+
+    def setupLinkFlags( self ):
+        super().setupLinkFlags()
+        self.LINK_FLAGS_R.extend( self.getArchFlags() )
 
     #--------------------------------------------------------------------------
 
