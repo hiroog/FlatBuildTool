@@ -328,7 +328,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                 'arm7'  : '-arch:VFPv4',
                 'arm64' : '',
             }
-        self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
+        if sse != 'Default':
+            self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
         for inc in self.INCLUDE_PATH_R:
             #print( 'INCLUDE=' + inc )
