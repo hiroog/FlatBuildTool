@@ -447,7 +447,7 @@ def load_config():
 
 
 def usage():
-    Log.p( 'FlatBuildTool v1.43 Hiroyuki Ogasawara' )
+    Log.p( 'FlatBuildTool v1.44 Hiroyuki Ogasawara' )
     Log.p( 'usage: python FlatBuildTool.py [<options>] [<target>...]' )
     Log.p( '  -f <BuildFile.py>  default : FLB_Makefile.py' )
     Log.p( '  --dump' )
@@ -457,6 +457,7 @@ def usage():
     Log.p( '  --opt <env_name>=<value>' )
     Log.p( '  -v, --verbose' )
     Log.p( '  --debug' )
+    Log.p( '  --utf8' )
     Log.p( 'parallel action: target1 target2 ...' )
     Log.p( 'sequential action: target1,target2,...' )
     sys.exit( 0 )
@@ -468,7 +469,7 @@ def main( argv ):
     debug_flag= False
     dump_flag= False
     func_command= None
-    env_dump= False
+    #env_dump= False
     job_count= 0
     action_list= []
     opt_dict= load_config()
@@ -481,11 +482,11 @@ def main( argv ):
                 ai+= 1
                 if ai < acount:
                     makefile= argv[ai]
-            elif arg == '--env':
-                ai+= 1
-                if ai < acount:
-                    platform= argv[ai]
-                env_dump= True
+            #elif arg == '--env':
+            #    ai+= 1
+            #    if ai < acount:
+            #        platform= argv[ai]
+            #    env_dump= True
             elif arg == '--opt':
                 ai+= 1
                 if ai < acount:
@@ -503,6 +504,9 @@ def main( argv ):
                 Log.DebugLevel= 1
             elif arg == '--dump':
                 dump_flag= True
+            elif arg == '--utf8':
+                if os.name == 'nt':
+                    os.system( 'chcp 65001' )
             elif arg == '--list':
                 func_command= 'f_list'
             elif arg == '--platforms':
