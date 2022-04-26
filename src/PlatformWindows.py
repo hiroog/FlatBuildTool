@@ -254,7 +254,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_LIB= self.searchCommandPath( 'lib.exe' )
 
         if self.CMD_CC == None:
-            raise   BuildUtility.FLB_Error( 'cl.exe not found' )
+            raise   BuildUtility.FLB_Error( 'cl.exe not found. Please install "Desktop development with C++".' )
 
         path_r= ''
         for path in self.BIN_PATH_R:
