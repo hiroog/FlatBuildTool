@@ -47,8 +47,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # --opt SSE=AVX2
         # --opt SSE=AVX512
         # or 'SSE AVX512' in local_config.txt
-        self.SSE= self.getUserOption( 'SSE', 'SSE' )
-        self.STD= self.getUserOption( 'STD', '17' )
+        self.SSE= self.getUserOption( 'SSE', 'AVX2' )
+        self.STD= self.getUserOption( 'STD', '20' )
 
         self.setDefault()
 
