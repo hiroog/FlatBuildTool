@@ -19,7 +19,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         self.CMD_LINK= '/usr/bin/clang++'
         self.CMD_LIB= 'ar'
         self.CMD_LIPO= 'lipo'
-        self.STD= self.getUserOption( 'STD', '17' )
+        self.STD= self.getUserOption( 'STD', '20' )
 
         self.setDefault()
 
@@ -41,7 +41,8 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.OBJC_FLAGS= '-fobjc-arc -DOBJC_OLD_DISPATCH_PROTOTYPES=0'.split()
 
-        self.addLibraries( [ 'stdc++', 'pthread', 'm'] )
+        #self.addLibraries( [ 'stdc++', 'pthread', 'm'] )
+        self.addLibraries( [ 'pthread', 'm'] )
         self.addIgnorePaths( [ '/usr/', '/Applications/' ] )
 
         self.refresh()
@@ -163,8 +164,5 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
     def getSupportArchList( self ):
         return  [ 'x64', 'arm64' ]
-        #return  [ self.getHostArch() ]
-        #return  [ 'x64' ]
-        #return  [ 'arm64e' ]
 
 
