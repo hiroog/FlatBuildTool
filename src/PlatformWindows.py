@@ -35,16 +35,20 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.setDefault()
 
-        self.ARCH_LIST= [ 'x64', 'x86' ]
-        if self.getUserOption( 'ARM', '0' ) == '1':
-            if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm64' ) ):
-                self.ARCH_LIST.append( 'arm64' )
-            if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm' ) ):
-                self.ARCH_LIST.append( 'arm7' )
+        if self.getHostArch() == 'arm64':
+            self.ARCH_LIST= [ 'arm64' ]
+            if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/x64' ) ):
+                self.ARCH_LIST.append( 'x64' )
+        else:
+            self.ARCH_LIST= [ 'x64'  ]
+            if self.getUserOption( 'ARM', '0' ) == '1':
+                if os.path.exists( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm64' ) ):
+                    self.ARCH_LIST.append( 'arm64' )
 
         Log.d( 'MSVC = %d' % self.MSVC_VERSION )
         Log.d( 'SDK = ', self.WINDOWS_SDK_DIR )
         Log.d( 'SDK Version = ', self.WINDOWS_SDK_VERSION )
+        Log.d( 'MSVC Dir = ', self.MSVC_VC_DIR )
         Log.d( 'CPU Arch    = ', ','.join(self.ARCH_LIST) )
 
 
@@ -53,6 +57,7 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         Log.p( 'MSVC = %d' % self.MSVC_VERSION )
         Log.p( 'SDK = ', self.WINDOWS_SDK_DIR )
         Log.p( 'SDK Version = ', self.WINDOWS_SDK_VERSION )
+        Log.p( 'MSVC Dir = ', self.MSVC_VC_DIR )
         Log.p( 'CPU Arch    = ', ','.join(self.ARCH_LIST) )
 
 
@@ -114,6 +119,13 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         # or 'VC 20xx' in local_config.txt
         vc= int(self.getUserOption( 'VC', '2099' ))
 
+        if vc >= 2026:
+            path= self.findVSFromDir( '18' )
+            if path is not None:
+                self.MSVC_DIR= path
+                self.MSVC_VERSION= 2026
+                return
+
         if vc >= 2022:
             path= self.findVSFromDir( '2022' )
             if path is not None:
@@ -161,19 +173,11 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     def setDefault( self ):
 
         self.findSDKPath()
-
-        #self.WINDOWS_SDK_DIR= self.findPath( [
-        #                    os.path.join( self.X86_PROGRAMFILES, 'Windows Kits\\10' ),
-        #                    os.path.join( self.X86_PROGRAMFILES, 'Windows Kits\\8.1' ),
-        #                ] )
         self.WINDOWS_SDK_VERSION= sorted( os.listdir( os.path.join( self.WINDOWS_SDK_DIR, 'Include' ) ), reverse= True )[0]
-        #self.WINDOWS_SDK_VERSION= '10.0.14393.0'
-
         self.MSVC_VC_DIR= self.getVCRoot()
 
-
         self.addCCFlags( '-W3 -WX -GA -GF -Gy -Zi -EHsc -fp:except- -fp:fast -DWIN32 -D_WINDOWS -nologo -Zc:forScope,wchar_t,auto -utf-8'.split() )
-        cstd= self.getUserOption( 'STD', '17' )
+        cstd= self.getUserOption( 'STD', '20' )
         self.addCCFlags( ['-std:c++'+cstd] )
         self.addCCFlags( ['-DFLB_TARGET_WINDOWS=1'] )
 
@@ -216,6 +220,18 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
                 elif self.getTargetArch() == 'arm64':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/arm64' ) )
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX64/x64' ) )
+            elif self.getHostArch() == 'arm64':
+                if self.getTargetArch() == 'x64':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/x64' ) )
+                elif self.getTargetArch() == 'x86':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/x86' ) )
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/x64' ) )
+                elif self.getTargetArch() == 'arm7':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/arm' ) )
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/x64' ) )
+                elif self.getTargetArch() == 'arm64':
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/arm64' ) )
+                    self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostArm64/x64' ) )
             else:
                 if self.getTargetArch() == 'x64':
                     self.BIN_PATH_R.append( os.path.join( self.MSVC_VC_DIR, 'bin/HostX86/x64' ) )
@@ -260,7 +276,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         for path in self.BIN_PATH_R:
             path_r+= path + ';'
         os.environ[ 'PATH' ]= path_r + self.SAVE_PATH
-        #print( 'PATH=' + str(os.environ['PATH']) )
 
 
     def setupIncludePath( self ):
@@ -332,7 +347,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
             self.CC_FLAGS_R.extend( table_arch[ self.getTargetArch() ].split() )
 
         for inc in self.INCLUDE_PATH_R:
-            #print( 'INCLUDE=' + inc )
             self.CC_FLAGS_R.append( '-I' + inc )
         self.CC_FLAGS_R.extend( self.CC_FLAGS )
 
@@ -341,7 +355,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
 
         self.LINK_FLAGS_R= []
         for lib in self.LIB_PATH_R:
-            #print( 'LIB=' + lib )
             self.LINK_FLAGS_R.append( '-LIBPATH:' + lib )
         self.LINK_FLAGS_R.extend( self.LINK_FLAGS )
         for lib in self.LINK_LIBS_R:
@@ -382,7 +395,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
         base,ext= os.path.splitext(os.path.basename(target))
         lib_path= self.getLibPath( base )
         command.append( '-IMPLIB:' + lib_path )
-        #print( lib_path )
         command.extend( self.LINK_FLAGS_R )
         return  command
 
@@ -411,8 +423,6 @@ class TargetEnvironment( PlatformCommon.TargetEnvironmentCommon ):
     #--------------------------------------------------------------------------
 
     def getSupportArchList( self ):
-        #return  [ 'x64', 'x86' ]
-        #return  [ 'x64', 'x86', 'arm7', 'arm64' ]
         return  self.ARCH_LIST
 
 
